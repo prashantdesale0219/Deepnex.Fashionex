@@ -114,15 +114,15 @@ const requestOTP = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Login user with OTP
+// @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
 const login = asyncHandler(async (req, res) => {
-  const { email, password, otp } = req.body;
+  const { email, password } = req.body;
   
   // Validate all required fields
-  if (!email || !password || !otp) {
-    throw new AppError('Email, password and OTP are required', 400);
+  if (!email || !password) {
+    throw new AppError('Email and password are required', 400);
   }
   
   // Find user and include password for comparison
@@ -143,25 +143,13 @@ const login = asyncHandler(async (req, res) => {
     throw new AppError('Invalid email or password', 401);
   }
   
-  // Verify OTP
-  if (!user.otp || user.otp !== otp) {
-    throw new AppError('Invalid OTP', 401);
-  }
-  
-  // Check if OTP is expired
-  if (!user.otpExpires || user.otpExpires < new Date()) {
-    throw new AppError('OTP has expired. Please request a new one.', 401);
-  }
-  
-  // Mark email as verified if not already
+  // Check if email is verified
   if (!user.isEmailVerified) {
-    user.isEmailVerified = true;
+    throw new AppError('Email not verified. Please verify your email before logging in.', 401);
   }
   
-  // Clear OTP after successful login
-  user.otp = null;
-  user.otpExpires = null;
-  await user.save();
+  // Update last login
+  await user.updateLastLogin();
   
   // Generate token
   const token = generateToken(user._id);

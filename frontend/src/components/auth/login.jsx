@@ -22,11 +22,8 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
     firstName: '',
     lastName: '',
     email: '',
-    password: '',
-    otp: ''
+    password: ''
   });
-  
-  const [otpSent, setOtpSent] = useState(false);
   
   // Check if we should show login modal with login tab active
   useEffect(() => {
@@ -46,31 +43,7 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
     });
   };
 
-  const requestOTP = async () => {
-    if (!formData.email) {
-      toast.error('Please enter your email address');
-      return;
-    }
-    
-    setLoading(true);
-    
-    try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.post(`${baseURL}/api/auth/request-otp`, {
-        email: formData.email
-      });
-      
-      if (response.data.success) {
-        setOtpSent(true);
-        toast.success('OTP sent to your email. Please check your inbox.');
-      }
-    } catch (error) {
-      console.error('OTP request error:', error);
-      toast.error(error.response?.data?.message || 'Failed to send OTP. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,18 +53,10 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
       const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       
       if (isLoginMode) {
-        // Check if OTP is provided for login
-        if (!formData.otp && otpSent) {
-          toast.error('Please enter the OTP sent to your email');
-          setLoading(false);
-          return;
-        }
-        
-        // Login with OTP
+        // Login without OTP
         const response = await axios.post(`${baseURL}/api/auth/login`, {
           email: formData.email,
-          password: formData.password,
-          otp: formData.otp
+          password: formData.password
         });
         
         if (response.data.success) {
@@ -114,11 +79,9 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
         });
         
         if (response.data.success) {
-          toast.success('Registration successful! Please check your email for OTP to verify your account.');
-          setVerificationMessage('An OTP has been sent to your email. Please use it to login.');
-          setIsLoginMode(true);
-          setOtpSent(true);
-          setFormData({ ...formData, firstName: '', lastName: '', password: '' });
+          toast.success('Registration successful! Please verify your email to activate your account.');
+          // Redirect to verification page with email
+          router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
         }
       }
     } catch (error) {
@@ -142,13 +105,11 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
   const toggleAuthMode = () => {
     setIsLoginMode(!isLoginMode);
     setShowEmailForm(false);
-    setOtpSent(false);
     setFormData({
       firstName: '',
       lastName: '',
       email: '',
-      password: '',
-      otp: ''
+      password: ''
     });
   };
 
@@ -304,30 +265,12 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                 <div className="flex items-center justify-between mb-4">
                   <button
                     type="button"
-                    onClick={requestOTP}
-                    disabled={loading || !formData.email}
+                    onClick={() => router.push(`/verify?email=${encodeURIComponent(formData.email)}`)}
+                    disabled={!formData.email}
                     className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                   >
-                    {otpSent ? 'Resend OTP' : 'Get OTP'}
+                    Need to verify your email?
                   </button>
-                </div>
-              )}
-              
-              {(otpSent || isLoginMode) && (
-                <div className="mb-4">
-                  <label htmlFor="otp" className="block text-sm font-medium text-gray-900 mb-1">
-                    OTP
-                  </label>
-                  <input
-                    type="text"
-                    id="otp"
-                    name="otp"
-                    value={formData.otp}
-                    onChange={handleChange}
-                    placeholder="Enter 6-digit OTP"
-                    maxLength={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900 bg-white"
-                  />
                 </div>
               )}
               <button
