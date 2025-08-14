@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { Play, Download, Eye, Clock, CheckCircle, XCircle, User, Shirt, Sparkles, ChevronDown } from 'lucide-react';
+import { Play, Download, Eye, Clock, CheckCircle, XCircle, User, Shirt, Sparkles, ChevronDown, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const TryOn = () => {
@@ -219,6 +219,31 @@ const TryOn = () => {
       toast.error(message);
     }
   };
+  
+  // Function to handle deleting a try-on task
+  const handleDeleteTask = async (taskId) => {
+    if (!confirm('Are you sure you want to delete this try-on task? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      await axios.delete(`${baseURL}/api/tryon/${taskId}`);
+      
+      // Remove the task from state
+      setTryOnTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      
+      // Close preview if the deleted task is being previewed
+      if (previewTask && previewTask.id === taskId) {
+        setPreviewTask(null);
+      }
+      
+      toast.success('Try-on task deleted successfully');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast.error('Failed to delete try-on task');
+    }
+  };
 
   const getStatusIcon = (status) => {
     const normalizedStatus = status?.toLowerCase();
@@ -403,6 +428,9 @@ const TryOn = () => {
                           src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validModels.find(model => (model.id || model._id) === selectedModel)?.fileUrl}`}
                           alt="Selected model"
                           className="w-12 h-12 object-cover rounded-lg mr-3"
+                          onError={(e) => {
+                            e.target.src = '/placeholder-model.svg';
+                          }}
                         />
                         <div>
                           <div className="font-medium text-gray-900">
@@ -439,6 +467,9 @@ const TryOn = () => {
                             src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
                             alt={model.originalName}
                             className="w-12 h-12 object-cover rounded-lg mr-3"
+                            onError={(e) => {
+                              e.target.src = '/placeholder-model.svg';
+                            }}
                           />
                           <div className="flex-1">
                             <div className={`font-medium ${selectedModel === (model.id || model._id) ? 'text-blue-600' : 'text-gray-900'}`}>
@@ -627,17 +658,27 @@ const TryOn = () => {
                         <button
                           onClick={() => setPreviewTask(task)}
                           className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
+                          title="Preview"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDownloadResult(task.id)}
                           className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors"
+                          title="Download"
                         >
                           <Download className="w-4 h-4" />
                         </button>
                       </>
                     )}
+                    {/* Delete button - available for all tasks */}
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -665,12 +706,24 @@ const TryOn = () => {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Try-On Result #{previewTask.taskId?.slice(-8)}
                 </h3>
-                <button
-                  onClick={() => setPreviewTask(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XCircle className="w-6 h-6" />
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      handleDeleteTask(previewTask.id);
+                    }}
+                    className="text-red-600 hover:text-red-800"
+                    title="Delete this try-on task"
+                  >
+                    <Trash className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => setPreviewTask(null)}
+                    className="text-gray-400 hover:text-gray-600"
+                    title="Close preview"
+                  >
+                    <XCircle className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
               
               {previewTask.result?.resultImageUrl && (

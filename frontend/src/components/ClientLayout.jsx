@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "../layout/navbar";
 import Footer from "../layout/footer";
+import ErrorBoundary from "./common/ErrorBoundary";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -14,7 +15,7 @@ export default function ClientLayout({ children }) {
   const isAuthPage = pathname?.includes('/login') || pathname?.includes('/register');
 
   return (
-    <>
+    <ErrorBoundary>
       {!isDashboard && !isAuthPage && <Navbar />}
       {children}
       {!isDashboard && !isAuthPage && <Footer />}
@@ -29,6 +30,6 @@ export default function ClientLayout({ children }) {
         draggable
         pauseOnHover
       />
-    </>
+    </ErrorBoundary>
   );
 }

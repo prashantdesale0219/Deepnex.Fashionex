@@ -57,7 +57,8 @@ Content-Type: application/json
 ```json
 {
   "email": "john.doe@example.com",
-  "password": "password123"
+  "password": "password123",
+  "otp": "123456"
 }
 ```
 
@@ -95,7 +96,8 @@ Content-Type: application/json
 **Body:**
 ```json
 {
-  "token": "verification_token_from_email"
+  "email": "john.doe@example.com",
+  "otp": "123456"
 }
 ```
 
@@ -109,28 +111,57 @@ Content-Type: application/json
 
 ---
 
-### 4. Resend Verification Email
-**POST** `/auth/resend-verification`
+### 4. Request OTP
+**POST** `/auth/request-otp`
 
 **Headers:**
 ```
 Content-Type: application/json
-Authorization: Bearer jwt_token_here
 ```
 
-**Body:** (Empty)
+**Body:**
+```json
+{
+  "email": "john.doe@example.com"
+}
+```
 
 **Response:**
 ```json
 {
   "success": true,
-  "message": "Verification email sent successfully"
+  "message": "OTP sent successfully"
 }
 ```
 
 ---
 
-### 5. Forgot Password
+### 5. Resend OTP
+**POST** `/auth/resend-otp`
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "email": "john.doe@example.com"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OTP resent successfully"
+}
+```
+
+---
+
+### 6. Forgot Password
 **POST** `/auth/forgot-password`
 
 **Headers:**

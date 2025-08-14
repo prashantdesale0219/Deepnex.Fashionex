@@ -5,11 +5,10 @@ const BeforeAfter = () => {
   const [position, setPosition] = useState(50);
   // Maximum slider position (95%)  
   const maxPosition = 95;
-  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   const sliderRef = useRef(null);
 
-  // Handle mouse/touch events for dragging
+  // Handle mouse/touch events for movement
   useEffect(() => {
     // Check if window is defined (client-side only)
     if (typeof window === 'undefined') return;
@@ -17,31 +16,24 @@ const BeforeAfter = () => {
     const container = containerRef.current;
     if (!container) return;
 
-    const handleMouseDown = (e) => {
-      setIsDragging(true);
+    const handleMouseMove = (e) => {
       updatePosition(e);
     };
 
-    const handleMouseMove = (e) => {
-      if (isDragging) {
-        updatePosition(e);
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    const handleTouchStart = (e) => {
-      setIsDragging(true);
+    const handleTouchMove = (e) => {
       updatePositionTouch(e);
     };
 
-    const handleTouchMove = (e) => {
-      if (isDragging) {
-        updatePositionTouch(e);
-      }
+    // These are kept for mobile devices where touch and hold might be needed
+    const handleTouchStart = (e) => {
+      updatePositionTouch(e);
     };
+    
+    const handleMouseEnter = (e) => {
+      // Set initial position when mouse enters
+      updatePosition(e);
+    };
+
 
     const updatePosition = (e) => {
       const rect = container.getBoundingClientRect();
@@ -64,36 +56,33 @@ const BeforeAfter = () => {
     };
 
     // Add event listeners
-    container.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseenter', handleMouseEnter);
     container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleMouseUp);
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     // Cleanup
     return () => {
-      container.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseenter', handleMouseEnter);
       container.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleMouseUp);
+      container.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isDragging]);
+  }, []);
 
   return (
-    <section className="py-10 sm:py-12 md:py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16">
+    <section className="py-10 sm:py-12 md:py-16 lg:py-24 bg-gradient-to-b from-white to-coffee-bg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16  py-8 rounded-xl ">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 tracking-tight">
-            See <span className='text-almond italic'>FashionX</span> In <span className="italic">Action</span>
+            See <span className='text-coffee-light italic font-extrabold'>Fashion<span className="text-coffee-dark">X</span></span> In <span className="italic text-coffee">Action</span>
           </h2>
+          <p className="text-coffee-dark text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Move your mouse across the image to see the before and after transformation</p>
         </div>
 
         <div 
           ref={containerRef}
-          className="relative w-full max-w-5xl mx-auto h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden rounded-lg shadow-xl cursor-ew-resize"
+          className="relative w-full max-w-5xl mx-auto h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden rounded-lg shadow-xl cursor-none hover:cursor-ew-resize transition-all duration-300"
           style={{ touchAction: 'none' }}
         >
           {/* Before Image (Left side) */}
@@ -131,23 +120,25 @@ const BeforeAfter = () => {
             style={{ 
               left: `${100-position}%`, 
               transform: 'translateX(-50%)',
-              boxShadow: '0 0 5px rgba(0, 0, 0, 0.5)'
+              boxShadow: '0 0 8px rgba(0, 0, 0, 0.7)'
             }}
           >
             {/* Slider Handle */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-white rounded-full flex items-center justify-center shadow-md">
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-0.5 sm:w-1 h-2 sm:h-2.5 md:h-3 bg-gray-400 rounded-full mb-0.5 sm:mb-1"></div>
-                <div className="w-0.5 sm:w-1 h-2 sm:h-2.5 md:h-3 bg-gray-400 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-coffee-light hover:scale-110 transition-all duration-300">
+              <div className="flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-coffee" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
               </div>
             </div>
           </div>
 
           {/* Labels */}
-          <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-2 sm:left-3 md:left-4 bg-black/70 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-md text-xs sm:text-sm font-medium">
+          <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-2 sm:left-3 md:left-4 bg-coffee-dark text-white px-3 sm:px-4 py-1 sm:py-2 rounded-md text-xs sm:text-sm font-bold shadow-lg transform transition-transform duration-300 hover:scale-105">
             Before
           </div>
-          <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 right-2 sm:right-3 md:right-4 bg-black/70 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-md text-xs sm:text-sm font-medium">
+          <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 right-2 sm:right-3 md:right-4 bg-coffee-light text-white px-3 sm:px-4 py-1 sm:py-2 rounded-md text-xs sm:text-sm font-bold shadow-lg transform transition-transform duration-300 hover:scale-105">
             After
           </div>
         </div>

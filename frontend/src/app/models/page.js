@@ -5,8 +5,10 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Upload, User, Trash2, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import DashboardErrorBoundary from '@/components/dashboard/DashboardErrorBoundary';
 
-const Models = () => {
+// Models component content
+const ModelsContent = () => {
   const router = useRouter();
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -234,7 +236,7 @@ const Models = () => {
                     alt={model.originalName}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = '/placeholder-model.jpg';
+                      e.target.src = '/placeholder-model.svg';
                     }}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2">
@@ -388,6 +390,15 @@ const Models = () => {
         </div>
       )}
     </div>
+  );
+};
+
+// Wrap the models content with error boundary
+const Models = () => {
+  return (
+    <DashboardErrorBoundary>
+      <ModelsContent />
+    </DashboardErrorBoundary>
   );
 };
 

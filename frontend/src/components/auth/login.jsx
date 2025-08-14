@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -12,16 +12,30 @@ import { Eye, EyeOff } from 'lucide-react';
 
 const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoginMode, setIsLoginMode] = useState(initialMode === 'login');
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    password: ''
+    password: '',
+    otp: ''
   });
+  
+  const [otpSent, setOtpSent] = useState(false);
+  
+  // Check if we should show login modal with login tab active
+  useEffect(() => {
+    const loginParam = searchParams.get('login');
+    if (loginParam === 'true') {
+      setIsLoginMode(true);
+      setShowEmailForm(true);
+    }
+  }, [searchParams]);
 
   if (!isOpen) return null;
 
@@ -32,6 +46,32 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
     });
   };
 
+  const requestOTP = async () => {
+    if (!formData.email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await axios.post(`${baseURL}/api/auth/request-otp`, {
+        email: formData.email
+      });
+      
+      if (response.data.success) {
+        setOtpSent(true);
+        toast.success('OTP sent to your email. Please check your inbox.');
+      }
+    } catch (error) {
+      console.error('OTP request error:', error);
+      toast.error(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -40,16 +80,26 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
       const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       
       if (isLoginMode) {
-        // Login
+        // Check if OTP is provided for login
+        if (!formData.otp && otpSent) {
+          toast.error('Please enter the OTP sent to your email');
+          setLoading(false);
+          return;
+        }
+        
+        // Login with OTP
         const response = await axios.post(`${baseURL}/api/auth/login`, {
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          otp: formData.otp
         });
         
         if (response.data.success) {
           localStorage.setItem('token', response.data.data.token);
           localStorage.setItem('user', JSON.stringify(response.data.data.user));
           axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`;
+          // Dispatch custom event for navbar to detect login status change
+          window.dispatchEvent(new Event('loginStatusChanged'));
           toast.success('Login successful!');
           onClose();
           router.push('/dashboard');
@@ -64,8 +114,10 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
         });
         
         if (response.data.success) {
-          toast.success('Registration successful! Please login.');
+          toast.success('Registration successful! Please check your email for OTP to verify your account.');
+          setVerificationMessage('An OTP has been sent to your email. Please use it to login.');
           setIsLoginMode(true);
+          setOtpSent(true);
           setFormData({ ...formData, firstName: '', lastName: '', password: '' });
         }
       }
@@ -90,11 +142,13 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
   const toggleAuthMode = () => {
     setIsLoginMode(!isLoginMode);
     setShowEmailForm(false);
+    setOtpSent(false);
     setFormData({
       firstName: '',
       lastName: '',
       email: '',
-      password: ''
+      password: '',
+      otp: ''
     });
   };
 
@@ -137,6 +191,11 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                 ? 'Continue with your account to access exclusive features' 
                 : 'Join FashionX to transform your fashion experience'}
             </p>
+            {verificationMessage && (
+              <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded-lg">
+                {verificationMessage}
+              </div>
+            )}
           </div>
 
           {!showEmailForm ? (
@@ -240,6 +299,37 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                   </button>
                 </div>
               </div>
+              
+              {isLoginMode && (
+                <div className="flex items-center justify-between mb-4">
+                  <button
+                    type="button"
+                    onClick={requestOTP}
+                    disabled={loading || !formData.email}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {otpSent ? 'Resend OTP' : 'Get OTP'}
+                  </button>
+                </div>
+              )}
+              
+              {(otpSent || isLoginMode) && (
+                <div className="mb-4">
+                  <label htmlFor="otp" className="block text-sm font-medium text-gray-900 mb-1">
+                    OTP
+                  </label>
+                  <input
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    value={formData.otp}
+                    onChange={handleChange}
+                    placeholder="Enter 6-digit OTP"
+                    maxLength={6}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-900 text-gray-900 bg-white"
+                  />
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={loading}

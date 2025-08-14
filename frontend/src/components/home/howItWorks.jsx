@@ -64,7 +64,20 @@ const HowItWorks = () => {
             loop
             muted
             playsInline
-            onError={(e) => console.error("Video error:", e)}
+            preload="metadata"
+            onError={(e) => {
+              console.error("Video error:", e);
+              // Hide the video element on error
+              e.target.style.display = 'none';
+              // Show a fallback image or message
+              const parent = e.target.parentElement;
+              if (parent) {
+                const fallback = document.createElement('div');
+                fallback.className = 'flex items-center justify-center bg-gray-100 w-full h-[300px]';
+                fallback.innerHTML = '<p class="text-gray-500">Video preview unavailable</p>';
+                parent.appendChild(fallback);
+              }
+            }}
           />
         </div>
 

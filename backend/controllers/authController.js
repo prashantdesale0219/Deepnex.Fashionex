@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { asyncHandler, AppError } = require('../middleware/errorHandler');
-const { generateVerificationToken, sendVerificationEmail, sendPasswordResetEmail } = require('../services/emailService');
+const { generateVerificationToken, generateOTP, sendVerificationEmail, sendPasswordResetEmail, sendOTPEmail } = require('../services/emailService');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -36,9 +36,9 @@ const signup = asyncHandler(async (req, res) => {
     throw new AppError('User with this email already exists', 400);
   }
   
-  // Generate email verification token
-  const verificationToken = generateVerificationToken();
-  const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  // Generate OTP for email verification
+  const otp = generateOTP();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
   
   // Create user
   const user = await User.create({
@@ -46,52 +46,84 @@ const signup = asyncHandler(async (req, res) => {
     passwordHash: password,
     firstName,
     lastName,
-    emailVerificationToken: verificationToken,
-    emailVerificationExpires: verificationExpires
+    otp,
+    otpExpires,
+    isEmailVerified: false
   });
   
-  // Send verification email
+  // Send OTP email
   try {
-    await sendVerificationEmail(user.email, user.firstName, verificationToken);
-    console.log(`Verification email sent to: ${user.email}`);
+    await sendOTPEmail(user.email, user.firstName, otp);
+    console.log(`OTP email sent to: ${user.email}`);
   } catch (error) {
-    console.error('Failed to send verification email:', error);
+    console.error('Failed to send OTP email:', error);
     // Don't fail registration if email fails
   }
   
-  // Generate token
-  const token = generateToken(user._id);
-  
-  // Set cookie
-  setTokenCookie(res, token);
-  
-  // Update last login
-  await user.updateLastLogin();
-  
   res.status(201).json({
     success: true,
-    message: 'User registered successfully. Please check your email to verify your account.',
+    message: 'User registered successfully. Please check your email for OTP to verify your account and login.',
     data: {
-      user: {
-        id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        fullName: user.getFullName(),
-        role: user.role,
-        isEmailVerified: user.isEmailVerified,
-        createdAt: user.createdAt
-      },
-      token
+      email: user.email
     }
   });
 });
 
-// @desc    Login user
+// @desc    Request OTP for login
+// @route   POST /api/auth/request-otp
+// @access  Public
+const requestOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  
+  // Find user
+  const user = await User.findOne({ email: email.toLowerCase() });
+  
+  if (!user) {
+    throw new AppError('No account found with this email', 404);
+  }
+  
+  // Check if account is active
+  if (!user.isActive) {
+    throw new AppError('Account is deactivated. Please contact support.', 401);
+  }
+  
+  // Generate OTP
+  const otp = generateOTP();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  
+  // Save OTP to user
+  user.otp = otp;
+  user.otpExpires = otpExpires;
+  await user.save();
+  
+  // Send OTP email
+  try {
+    await sendOTPEmail(user.email, user.firstName, otp);
+    console.log(`Login OTP sent to: ${user.email}`);
+  } catch (error) {
+    console.error('Failed to send OTP email:', error);
+    throw new AppError('Failed to send OTP. Please try again.', 500);
+  }
+  
+  res.status(200).json({
+    success: true,
+    message: 'OTP sent to your email. Please use it to login.',
+    data: {
+      email: user.email
+    }
+  });
+});
+
+// @desc    Login user with OTP
 // @route   POST /api/auth/login
 // @access  Public
 const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, otp } = req.body;
+  
+  // Validate all required fields
+  if (!email || !password || !otp) {
+    throw new AppError('Email, password and OTP are required', 400);
+  }
   
   // Find user and include password for comparison
   const user = await User.findOne({ email: email.toLowerCase() }).select('+passwordHash');
@@ -110,6 +142,26 @@ const login = asyncHandler(async (req, res) => {
   if (!isPasswordValid) {
     throw new AppError('Invalid email or password', 401);
   }
+  
+  // Verify OTP
+  if (!user.otp || user.otp !== otp) {
+    throw new AppError('Invalid OTP', 401);
+  }
+  
+  // Check if OTP is expired
+  if (!user.otpExpires || user.otpExpires < new Date()) {
+    throw new AppError('OTP has expired. Please request a new one.', 401);
+  }
+  
+  // Mark email as verified if not already
+  if (!user.isEmailVerified) {
+    user.isEmailVerified = true;
+  }
+  
+  // Clear OTP after successful login
+  user.otp = null;
+  user.otpExpires = null;
+  await user.save();
   
   // Generate token
   const token = generateToken(user._id);
@@ -132,7 +184,8 @@ const login = asyncHandler(async (req, res) => {
         fullName: user.getFullName(),
         role: user.role,
         lastLogin: user.lastLogin,
-        preferences: user.preferences
+        preferences: user.preferences,
+        isEmailVerified: user.isEmailVerified
       },
       token
     }
@@ -322,62 +375,79 @@ const deleteAccount = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Verify email
+// @desc    Verify email with OTP (for backward compatibility)
 // @route   POST /api/auth/verify-email
 // @access  Public
 const verifyEmail = asyncHandler(async (req, res) => {
-  const { token } = req.body;
+  const { email, otp } = req.body;
   
-  if (!token) {
-    throw new AppError('Verification token is required', 400);
+  if (!email || !otp) {
+    throw new AppError('Email and OTP are required', 400);
   }
   
-  // Find user with valid verification token
+  // Find user with valid OTP
   const user = await User.findOne({
-    emailVerificationToken: token,
-    emailVerificationExpires: { $gt: Date.now() }
+    email: email.toLowerCase(),
+    otp: otp,
+    otpExpires: { $gt: Date.now() }
   });
   
   if (!user) {
-    throw new AppError('Invalid or expired verification token', 400);
+    throw new AppError('Invalid or expired OTP', 400);
   }
   
   // Update user
   user.isEmailVerified = true;
-  user.emailVerificationToken = null;
-  user.emailVerificationExpires = null;
+  user.otp = null;
+  user.otpExpires = null;
   await user.save();
   
   res.json({
     success: true,
-    message: 'Email verified successfully'
+    message: 'Email verified successfully',
+    data: {
+      redirectUrl: `${process.env.CLIENT_URL}/?login=true`
+    }
   });
 });
 
-// @desc    Resend verification email
-// @route   POST /api/auth/resend-verification
-// @access  Private
-const resendVerification = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id);
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+const resendOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
   
-  if (user.isEmailVerified) {
+  if (!email) {
+    throw new AppError('Email is required', 400);
+  }
+  
+  const user = await User.findOne({ email: email.toLowerCase() });
+  
+  if (!user) {
+    throw new AppError('No account found with this email', 404);
+  }
+  
+  if (user.isEmailVerified && !req.body.forLogin) {
     throw new AppError('Email is already verified', 400);
   }
   
-  // Generate new verification token
-  const verificationToken = generateVerificationToken();
-  const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  // Generate new OTP
+  const otp = generateOTP();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
   
-  user.emailVerificationToken = verificationToken;
-  user.emailVerificationExpires = verificationExpires;
+  user.otp = otp;
+  user.otpExpires = otpExpires;
   await user.save();
   
-  // Send verification email
-  await sendVerificationEmail(user.email, user.firstName, verificationToken);
+  // Send OTP email
+  await sendOTPEmail(user.email, user.firstName, otp);
   
   res.json({
     success: true,
-    message: 'Verification email sent successfully'
+    message: 'OTP sent successfully',
+    data: {
+      email: user.email
+    }
   });
 });
 
@@ -439,6 +509,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 module.exports = {
   signup,
+  requestOTP,
   login,
   logout,
   getMe,
@@ -447,7 +518,7 @@ module.exports = {
   refreshToken,
   deleteAccount,
   verifyEmail,
-  resendVerification,
+  resendOTP,
   forgotPassword,
   resetPassword
 };

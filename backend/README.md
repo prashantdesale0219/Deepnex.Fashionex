@@ -81,8 +81,11 @@ A powerful AI Virtual Try-On Platform backend built with Node.js, Express, and M
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/login` - User login
+- `POST /api/auth/signup` - User registration (sends OTP to email)
+- `POST /api/auth/login` - User login (requires email, password, and OTP)
+- `POST /api/auth/request-otp` - Request OTP for login
+- `POST /api/auth/resend-otp` - Resend OTP for verification
+- `POST /api/auth/verify-email` - Verify email with OTP
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/me` - Get current user
 - `PUT /api/auth/profile` - Update profile

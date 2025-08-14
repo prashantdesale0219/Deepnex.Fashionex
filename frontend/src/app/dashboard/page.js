@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { User, Shirt, Zap, Plus, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import DashboardErrorBoundary from '@/components/dashboard/DashboardErrorBoundary';
 
-const Dashboard = () => {
+// Dashboard component wrapped with error boundary
+const DashboardContent = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState({
@@ -307,6 +309,15 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Wrap the dashboard content with error boundary
+const Dashboard = () => {
+  return (
+    <DashboardErrorBoundary>
+      <DashboardContent />
+    </DashboardErrorBoundary>
   );
 };
 

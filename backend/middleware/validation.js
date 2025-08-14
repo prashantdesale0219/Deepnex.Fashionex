@@ -65,7 +65,7 @@ const schemas = {
       })
   }),
   
-  // User login
+  // User login with OTP
   userLogin: Joi.object({
     email: Joi.string()
       .email()
@@ -78,6 +78,58 @@ const schemas = {
       .required()
       .messages({
         'any.required': 'Password is required'
+      }),
+    otp: Joi.string()
+      .length(6)
+      .pattern(/^[0-9]+$/)
+      .required()
+      .messages({
+        'string.length': 'OTP must be 6 digits',
+        'string.pattern.base': 'OTP must contain only numbers',
+        'any.required': 'OTP is required'
+      })
+  }),
+  
+  // Request OTP
+  requestOTP: Joi.object({
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        'string.email': 'Please provide a valid email address',
+        'any.required': 'Email is required'
+      })
+  }),
+  
+  // Resend OTP
+  resendOTP: Joi.object({
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        'string.email': 'Please provide a valid email address',
+        'any.required': 'Email is required'
+      }),
+    forLogin: Joi.boolean().default(false)
+  }),
+  
+  // Verify email with OTP
+  verifyEmailOTP: Joi.object({
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        'string.email': 'Please provide a valid email address',
+        'any.required': 'Email is required'
+      }),
+    otp: Joi.string()
+      .length(6)
+      .pattern(/^[0-9]+$/)
+      .required()
+      .messages({
+        'string.length': 'OTP must be 6 digits',
+        'string.pattern.base': 'OTP must contain only numbers',
+        'any.required': 'OTP is required'
       })
   }),
   
@@ -327,6 +379,9 @@ module.exports = {
   schemas,
   validateRegistration,
   validateLogin,
+  validateRequestOTP: validate(schemas.requestOTP),
+  validateResendOTP: validate(schemas.resendOTP),
+  validateVerifyEmailOTP: validate(schemas.verifyEmailOTP),
   validatePasswordChange,
   validateProfileUpdate,
   validateTryOnRequest,

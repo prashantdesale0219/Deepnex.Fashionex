@@ -30,6 +30,8 @@ const LoginButton = () => {
     setIsLoggedIn(false);
     setUser(null);
     setShowDropdown(false);
+    // Dispatch custom event for navbar to detect login status change
+    window.dispatchEvent(new Event('loginStatusChanged'));
     toast.success('Logged out successfully!');
     router.push('/');
   };

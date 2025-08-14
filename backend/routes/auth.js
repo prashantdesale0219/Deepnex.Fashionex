@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   signup,
+  requestOTP,
   login,
   logout,
   getMe,
@@ -9,15 +10,17 @@ const {
   refreshToken,
   deleteAccount,
   verifyEmail,
-  resendVerification,
+  resendOTP,
   forgotPassword,
   resetPassword
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const {
-  validate,
   validateRegistration,
   validateLogin,
+  validateRequestOTP,
+  validateResendOTP,
+  validateVerifyEmailOTP,
   validateProfileUpdate,
   validatePasswordChange
 } = require('../middleware/validation');
@@ -27,9 +30,11 @@ const router = express.Router();
 
 // Public routes
 router.post('/signup', validateRegistration, signup);
+router.post('/request-otp', validateRequestOTP, requestOTP);
 router.post('/login', validateLogin, login);
 router.post('/refresh-token', refreshToken);
-router.post('/verify-email', verifyEmail);
+router.post('/verify-email', validateVerifyEmailOTP, verifyEmail);
+router.post('/resend-otp', validateResendOTP, resendOTP);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 
@@ -44,7 +49,11 @@ router.put('/profile',
   updateProfile
 );
 router.put('/change-password', validatePasswordChange, changePassword);
-router.post('/resend-verification', resendVerification);
+// Legacy route - redirects to resend-otp
+router.post('/resend-verification', (req, res, next) => {
+  req.body.email = req.user.email;
+  next();
+}, resendOTP);
 router.delete('/delete-account', deleteAccount);
 
 module.exports = router;

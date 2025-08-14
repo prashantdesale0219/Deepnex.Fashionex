@@ -11,6 +11,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
   // Effect for handling scroll events
@@ -39,6 +40,28 @@ const Navbar = () => {
       setIsScrolled(true);
     }
   }, [pathname]);
+  
+  // Effect for checking login status
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+    
+    // Check on initial load
+    checkLoginStatus();
+    
+    // Set up event listener for storage changes
+    window.addEventListener('storage', checkLoginStatus);
+    
+    // Custom event for login status changes within the app
+    window.addEventListener('loginStatusChanged', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('loginStatusChanged', checkLoginStatus);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -132,12 +155,14 @@ const Navbar = () => {
           <div>
             <LoginButton />
           </div>
-          <Link 
-            href="/try-now" 
-            className={`${isScrolled ? 'bg-coffee text-white' : 'bg-white text-coffee'}  px-4 py-2 rounded-md hover:bg-almond transition-colors duration-300`}
-          >
-            Try Now
-          </Link>
+          {!isLoggedIn && (
+            <Link 
+              href="/try-now" 
+              className={`${isScrolled ? 'bg-coffee text-white' : 'bg-white text-coffee'}  px-4 py-2 rounded-md hover:bg-almond transition-colors duration-300`}
+            >
+              Try Now
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -234,13 +259,15 @@ const Navbar = () => {
               <div className="text-gray-700" onClick={() => setIsMenuOpen(false)}>
                 <LoginButton />
               </div>
-              <Link 
-                href="/try-now" 
-                className="bg-coffee text-white px-4 py-2 rounded-md hover:bg-almond transition-colors duration-300 inline-block text-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Try Now
-              </Link>
+              {!isLoggedIn && (
+                <Link 
+                  href="/try-now" 
+                  className="bg-coffee text-white px-4 py-2 rounded-md hover:bg-almond transition-colors duration-300 inline-block text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Try Now
+                </Link>
+              )}
             </div>
           </div>
         </div>
