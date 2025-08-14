@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 const CaseStudyBanner = () => {
   return (
-    <div className="max-w-7xl mx-auto my-10 sm:my-14 lg:my-20 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto my-10 sm:my-14 lg:my-20 px-4 sm:px-6 pt-20 lg:pt-0 lg:px-8">
       {/* Title and subtitle */}
       <div className="text-center mb-6 sm:mb-8 lg:mb-12">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-3 lg:mb-4">Case studies</h1>

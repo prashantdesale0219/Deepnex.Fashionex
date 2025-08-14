@@ -51,7 +51,7 @@ const Navbar = () => {
         <div className="flex-shrink-0">
           <Link href="/" className={`text-2xl font-bold ${isScrolled ? 'text-coffee' : 'text-white'}`}>
             <Image 
-              src="/assets/images/logo.png" 
+              src={isScrolled ? "/assets/images/logo.png" : "/assets/images/white-logo.png"} 
               alt="FashionX" 
               width={160} 
               height={40} 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { Play, Download, Eye, Clock, CheckCircle, XCircle, User, Shirt, Sparkles } from 'lucide-react';
+import { Play, Download, Eye, Clock, CheckCircle, XCircle, User, Shirt, Sparkles, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const TryOn = () => {
@@ -12,14 +12,24 @@ const TryOn = () => {
   const [tryOnTasks, setTryOnTasks] = useState([]);
   const [selectedModel, setSelectedModel] = useState('');
   const [selectedCloth, setSelectedCloth] = useState('');
-  const [selectedMode, setSelectedMode] = useState('cloth');
+  const [selectedMode, setSelectedMode] = useState('single');
+  const [selectedClothType, setSelectedClothType] = useState('upper');
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [previewTask, setPreviewTask] = useState(null);
+  const [isClothTypeDropdownOpen, setIsClothTypeDropdownOpen] = useState(false);
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [isClothDropdownOpen, setIsClothDropdownOpen] = useState(false);
 
   const tryOnModes = [
-    { value: 'cloth', label: 'Cloth Try-On', description: 'Try on clothing items' },
-    { value: 'pose', label: 'Pose Transfer', description: 'Transfer pose from reference' }
+    { value: 'single', label: 'Virtual Try-On', description: 'Try on clothing items virtually' }
+  ];
+  
+  const clothTypes = [
+    { value: 'upper', label: 'Upper Body', description: 'Shirts, T-shirts, Tops, etc.' },
+    { value: 'lower', label: 'Lower Body', description: 'Pants, Skirts, Shorts, etc.' },
+    { value: 'full_set', label: 'Full Set', description: 'Dresses, Jumpsuits, etc.' },
+    { value: 'combo', label: 'Combo Set', description: 'Upper and Lower body combination' }
   ];
 
   useEffect(() => {
@@ -161,7 +171,7 @@ const TryOn = () => {
       const response = await axios.post(`${baseURL}/api/tryon`, {
         modelAssetId: selectedModel,
         clothAssetIds: [selectedCloth],
-        clothType: 'upper',
+        clothType: selectedClothType,
         mode: 'single'
       });
       
@@ -240,12 +250,27 @@ const TryOn = () => {
 
   const getModeIcon = (mode) => {
     switch (mode) {
-      case 'cloth':
+      case 'single':
         return <Shirt className="w-4 h-4" />;
-      case 'pose':
-        return <User className="w-4 h-4" />;
-      default:
+      case 'combo':
         return <Sparkles className="w-4 h-4" />;
+      default:
+        return <Shirt className="w-4 h-4" />;
+    }
+  };
+  
+  const getClothTypeIcon = (type) => {
+    switch (type) {
+      case 'upper':
+        return <Shirt className="w-4 h-4" />;
+      case 'lower':
+        return <User className="w-4 h-4" />;
+      case 'full_set':
+        return <User className="w-4 h-4" />;
+      case 'combo':
+        return <Sparkles className="w-4 h-4" />;
+      default:
+        return <Shirt className="w-4 h-4" />;
     }
   };
 
@@ -309,120 +334,222 @@ const TryOn = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Mode Selection */}
-            <div>
+            {/* Mode Selection removed as we only have one mode now */}
+            
+            {/* Cloth Type Selection - Dropdown */}
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Try-On Mode
+                Clothing Type
               </label>
-              <div className="space-y-2">
-                {tryOnModes.map((mode) => (
-                  <label key={mode.value} className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="radio"
-                      name="mode"
-                      value={mode.value}
-                      checked={selectedMode === mode.value}
-                      onChange={(e) => setSelectedMode(e.target.value)}
-                      className="mr-3"
-                    />
-                    <div className="flex items-center">
-                      {getModeIcon(mode.value)}
-                      <div className="ml-2">
-                        <div className="font-medium text-gray-900">{mode.label}</div>
-                        <div className="text-sm text-gray-500">{mode.description}</div>
+              <div 
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
+                onClick={() => setIsClothTypeDropdownOpen(!isClothTypeDropdownOpen)}
+              >
+                <div className="flex items-center">
+                  {getClothTypeIcon(selectedClothType)}
+                  <div className="ml-2">
+                    <div className="font-medium text-gray-900">
+                      {clothTypes.find(type => type.value === selectedClothType)?.label}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {clothTypes.find(type => type.value === selectedClothType)?.description}
+                    </div>
+                  </div>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isClothTypeDropdownOpen ? 'transform rotate-180' : ''}`} />
+              </div>
+              
+              {isClothTypeDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  {clothTypes.map((type) => (
+                    <div 
+                      key={type.value} 
+                      className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 ${selectedClothType === type.value ? 'bg-blue-50' : ''}`}
+                      onClick={() => {
+                        setSelectedClothType(type.value);
+                        setIsClothTypeDropdownOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center w-full">
+                        {getClothTypeIcon(type.value)}
+                        <div className="ml-2 flex-1">
+                          <div className={`font-medium ${selectedClothType === type.value ? 'text-blue-600' : 'text-gray-900'}`}>{type.label}</div>
+                          <div className="text-xs text-gray-500">{type.description}</div>
+                        </div>
+                        {selectedClothType === type.value && (
+                          <CheckCircle className="w-4 h-4 text-blue-600" />
+                        )}
                       </div>
                     </div>
-                  </label>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Model Selection */}
-            <div>
+            {/* Model Selection - Dropdown */}
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Select Model
               </label>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {validModels.map((model) => (
-                  <label key={model.id || model._id} className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="radio"
-                    name="model"
-                    value={model.id || model._id}
-                    checked={selectedModel === (model.id || model._id)}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                      className="mr-3"
-                    />
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
-                      alt={model.originalName}
-                      className="w-12 h-12 object-cover rounded-lg mr-3"
-                    />
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {model.metadata?.name || model.originalName}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {model.metadata?.gender || 'Unknown'}
-                      </div>
-                    </div>
-                  </label>
-                ))}
+              <div 
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              >
+                {selectedModel ? (
+                  <div className="flex items-center">
+                    {validModels.find(model => (model.id || model._id) === selectedModel) && (
+                      <>
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validModels.find(model => (model.id || model._id) === selectedModel)?.fileUrl}`}
+                          alt="Selected model"
+                          className="w-12 h-12 object-cover rounded-lg mr-3"
+                        />
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {validModels.find(model => (model.id || model._id) === selectedModel)?.metadata?.name || 
+                             validModels.find(model => (model.id || model._id) === selectedModel)?.originalName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {validModels.find(model => (model.id || model._id) === selectedModel)?.metadata?.gender || 'Unknown'}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-gray-500">Select a model</div>
+                )}
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isModelDropdownOpen ? 'transform rotate-180' : ''}`} />
               </div>
+              
+              {isModelDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  <div className="max-h-64 overflow-y-auto">
+                    {validModels.map((model) => (
+                      <div 
+                        key={model.id || model._id} 
+                        className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 ${selectedModel === (model.id || model._id) ? 'bg-blue-50' : ''}`}
+                        onClick={() => {
+                          setSelectedModel(model.id || model._id);
+                          setIsModelDropdownOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center w-full">
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
+                            alt={model.originalName}
+                            className="w-12 h-12 object-cover rounded-lg mr-3"
+                          />
+                          <div className="flex-1">
+                            <div className={`font-medium ${selectedModel === (model.id || model._id) ? 'text-blue-600' : 'text-gray-900'}`}>
+                              {model.metadata?.name || model.originalName}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {model.metadata?.gender || 'Unknown'}
+                            </div>
+                          </div>
+                          {selectedModel === (model.id || model._id) && (
+                            <CheckCircle className="w-4 h-4 text-blue-600" />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Cloth Selection */}
-            <div>
+            {/* Cloth Selection - Dropdown */}
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Select Clothing
               </label>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {validClothes.map((cloth) => (
-                  <label key={cloth.id || cloth._id} className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="radio"
-                    name="cloth"
-                    value={cloth.id || cloth._id}
-                    checked={selectedCloth === (cloth.id || cloth._id)}
-                      onChange={(e) => setSelectedCloth(e.target.value)}
-                      className="mr-3"
-                    />
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
-                      alt={cloth.originalName}
-                      className="w-12 h-12 object-cover rounded-lg mr-3"
-                    />
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {cloth.metadata?.name || cloth.originalName}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {cloth.metadata?.category?.replace('_', ' ') || 'Unknown'}
-                      </div>
-                    </div>
-                  </label>
-                ))}
+              <div 
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
+                onClick={() => setIsClothDropdownOpen(!isClothDropdownOpen)}
+              >
+                {selectedCloth ? (
+                  <div className="flex items-center">
+                    {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth) && (
+                      <>
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.fileUrl}`}
+                          alt="Selected clothing"
+                          className="w-12 h-12 object-cover rounded-lg mr-3"
+                        />
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.metadata?.name || 
+                             validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.originalName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.metadata?.category?.replace('_', ' ') || 'Unknown'}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-gray-500">Select a clothing item</div>
+                )}
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isClothDropdownOpen ? 'transform rotate-180' : ''}`} />
               </div>
+              
+              {isClothDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  <div className="max-h-64 overflow-y-auto">
+                    {validClothes.map((cloth) => (
+                      <div 
+                        key={cloth.id || cloth._id} 
+                        className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 ${selectedCloth === (cloth.id || cloth._id) ? 'bg-blue-50' : ''}`}
+                        onClick={() => {
+                          setSelectedCloth(cloth.id || cloth._id);
+                          setIsClothDropdownOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center w-full">
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
+                            alt={cloth.originalName}
+                            className="w-12 h-12 object-cover rounded-lg mr-3"
+                          />
+                          <div className="flex-1">
+                            <div className={`font-medium ${selectedCloth === (cloth.id || cloth._id) ? 'text-blue-600' : 'text-gray-900'}`}>
+                              {cloth.metadata?.name || cloth.originalName}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {cloth.metadata?.category?.replace('_', ' ') || 'Unknown'}
+                            </div>
+                          </div>
+                          {selectedCloth === (cloth.id || cloth._id) && (
+                            <CheckCircle className="w-4 h-4 text-blue-600" />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
         
         {validModels.length > 0 && validClothes.length > 0 && (
-          <div className="mt-6">
+          <div className="mt-8">
             <button
               onClick={handleCreateTryOn}
               disabled={!selectedModel || !selectedCloth || creating}
-              className="bg-[#26140c] text-white px-6 py-3 rounded-lg hover:bg-[#aa7156] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="bg-gradient-to-r from-[#26140c] to-[#aa7156] text-white px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center w-full md:w-auto"
             >
               {creating ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Creating Try-On...
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  <span className="font-medium">Creating Try-On...</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-5 h-5 mr-2" />
-                  Create Try-On
+                  <Play className="w-5 h-5 mr-3" fill="white" />
+                  <span className="font-medium">Create Virtual Try-On</span>
                 </>
               )}
             </button>

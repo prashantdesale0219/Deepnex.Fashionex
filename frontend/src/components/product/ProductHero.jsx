@@ -4,10 +4,10 @@ import Link from 'next/link';
 
 const ProductHero = () => {
   return (
-    <section className="w-full py-8 sm:py-12 md:py-16 lg:py-26 bg-white">
+    <section className="w-full py-16 sm:py-20 md:py-24 lg:py-32 bg-white mt-16 sm:mt-20 md:mt-24 lg:mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6">
             <span>How </span>
             <span className="italic">our</span>
             <span> AI generated </span>
@@ -15,14 +15,14 @@ const ProductHero = () => {
             <span>fashion models work?</span>
           </h1>
           
-          <p className="text-base sm:text-lg text-gray-700 mb-2 sm:mb-3 md:mb-4">
+          <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-3 sm:mb-4 md:mb-5">
             Start with any product shot
           </p>
-          <p className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6 md:mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 md:mb-10">
             Our AI turns it into stunning on-model visuals with perfect detail.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 md:gap-6">
             <Link 
               href="#try-now" 
               className="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 bg-gray-900 text-white text-sm sm:text-base font-medium rounded-md hover:bg-gray-800 transition-colors"
