@@ -65,7 +65,7 @@ const schemas = {
       })
   }),
   
-  // User login with OTP
+  // User login
   userLogin: Joi.object({
     email: Joi.string()
       .email()
@@ -78,15 +78,6 @@ const schemas = {
       .required()
       .messages({
         'any.required': 'Password is required'
-      }),
-    otp: Joi.string()
-      .length(6)
-      .pattern(/^[0-9]+$/)
-      .required()
-      .messages({
-        'string.length': 'OTP must be 6 digits',
-        'string.pattern.base': 'OTP must contain only numbers',
-        'any.required': 'OTP is required'
       })
   }),
   
