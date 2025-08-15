@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Play, Download, Eye, Clock, CheckCircle, XCircle, User, Shirt, Sparkles, ChevronDown, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const TryOn = () => {
   const router = useRouter();
@@ -625,14 +626,18 @@ const TryOn = () => {
                     {/* Result Image Thumbnail */}
                     {task.status?.toLowerCase() === 'completed' && task.result?.resultImageUrl && (
                       <div className="flex-shrink-0">
-                        <img
-                          src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${task.result.resultImageUrl}`}
-                          alt="Virtual Try-On Result"
-                          className="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm"
-                          onError={(e) => {
-                            console.error('Failed to load thumbnail:', e.target.src);
-                          }}
-                        />
+                        <div className="relative w-16 h-16 rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                          <Image
+                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${task.result.resultImageUrl}`}
+                            alt="Virtual Try-On Result"
+                            fill
+                            sizes="64px"
+                            style={{ objectFit: 'cover' }}
+                            onError={(e) => {
+                              console.error('Failed to load thumbnail:', e.target.src);
+                            }}
+                          />
+                        </div>
                       </div>
                     )}
                     
@@ -727,11 +732,14 @@ const TryOn = () => {
               </div>
               
               {previewTask.result?.resultImageUrl && (
-                <div className="mb-4">
-                  <img
+                <div className="mb-4 relative w-full aspect-[3/4] rounded-lg overflow-hidden">
+                  <Image
                     src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${previewTask.result.resultImageUrl}`}
                     alt="Virtual Try-On Result"
-                    className="w-full h-auto rounded-lg"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
+                    priority
+                    style={{ objectFit: 'contain' }}
                   />
                 </div>
               )}
