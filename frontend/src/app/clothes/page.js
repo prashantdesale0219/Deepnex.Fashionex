@@ -2,9 +2,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import apiClient from '../../lib/apiClient';
 import { toast } from 'react-toastify';
 import { Upload, Shirt, Trash2, Eye, CheckCircle, XCircle, Clock, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getAuthToken } from '../../lib/cookieUtils';
 
 const Clothes = () => {
   const router = useRouter();
@@ -25,7 +27,7 @@ const Clothes = () => {
 
   useEffect(() => {
     // Check authentication
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) {
       router.push('/login');
       return;
@@ -39,8 +41,7 @@ const Clothes = () => {
 
   const fetchClothes = async () => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.get(`${baseURL}/api/clothes`);
+      const response = await apiClient.get('/clothes');
       const clothesData = response.data.data?.assets || [];
       // Map validation status properly
       const mappedClothes = clothesData.map(cloth => ({
@@ -62,13 +63,12 @@ const Clothes = () => {
 
     setUploading(true);
     const formData = new FormData();
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
     // Handle multiple files
     if (acceptedFiles.length === 1) {
       formData.append('cloth', acceptedFiles[0]);
       try {
-        await axios.post(`${baseURL}/api/clothes/upload`, formData, {
+        await apiClient.post('/clothes/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         toast.success('Cloth uploaded successfully!');
@@ -83,7 +83,7 @@ const Clothes = () => {
         formData.append('clothes', file);
       });
       try {
-        await axios.post(`${baseURL}/api/clothes/upload-multiple`, formData, {
+        await apiClient.post('/clothes/upload-multiple', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         toast.success(`${acceptedFiles.length} clothes uploaded successfully!`);
@@ -112,8 +112,7 @@ const Clothes = () => {
     }
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      await axios.delete(`${baseURL}/api/clothes/${clothId}`);
+      await apiClient.delete(`/clothes/${clothId}`);
       toast.success('Cloth deleted successfully!');
       fetchClothes();
     } catch (error) {
@@ -125,8 +124,7 @@ const Clothes = () => {
 
   const handleValidate = async (clothId) => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.post(`${baseURL}/api/clothes/${clothId}/revalidate`);
+      const response = await apiClient.post(`/clothes/${clothId}/revalidate`);
       
       // Update the cloth status immediately based on response
       setClothes(prevClothes => 
@@ -160,8 +158,7 @@ const Clothes = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      await axios.put(`${baseURL}/api/clothes/${editingCloth}`, {
+      await apiClient.put(`/clothes/${editingCloth}`, {
         metadata: editForm
       });
       toast.success('Cloth updated successfully!');

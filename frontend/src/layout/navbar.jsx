@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { navbar } from '../data/navbar';
 import { FiMenu, FiX, FiChevronDown, FiHelpCircle, FiFileText, FiBookOpen } from 'react-icons/fi';
 import LoginButton from '../components/auth/LoginButton';
+import { getAuthToken } from '../lib/cookieUtils';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,7 +45,7 @@ const Navbar = () => {
   // Effect for checking login status
   useEffect(() => {
     const checkLoginStatus = () => {
-      const token = localStorage.getItem('token');
+      const token = getAuthToken();
       setIsLoggedIn(!!token);
     };
     

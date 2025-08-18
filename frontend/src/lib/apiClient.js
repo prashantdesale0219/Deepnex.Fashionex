@@ -1,22 +1,26 @@
 import axios from 'axios';
+import { getAuthToken, removeAuthToken } from './cookieUtils';
 
 /**
  * Enhanced API client with error handling and retry mechanism
  * Helps reduce network-related errors and improves reliability
  */
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
-  timeout: 15000, // 15 seconds
+  baseURL: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000') + '/api',
+  timeout: 10000, // 10 seconds - reduced timeout
   headers: {
     'Content-Type': 'application/json',
   },
+  // Add retry configuration
+  retry: 3,
+  retryDelay: 1000,
 });
 
 // Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from localStorage if available
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    // Get token from cookies if available
+    const token = getAuthToken();
     
     // Add token to headers if available
     if (token) {
@@ -30,37 +34,29 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Response interceptor with retry logic
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     
-    // Ignore aborted requests
-    if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
-      console.log('Request was aborted or timed out');
-      return Promise.reject(error);
-    }
-    
-    // Handle network errors
-    if (error.message === 'Network Error') {
-      console.log('Network error detected, check your connection');
-      return Promise.reject(error);
-    }
-    
-    // Implement retry logic for server errors (5xx) and timeout errors
-    if (
-      (error.response && error.response.status >= 500) ||
-      error.code === 'ECONNABORTED'
-    ) {
-      // Only retry once and if not already retried
-      if (!originalRequest._retry && originalRequest.method === 'GET') {
+    // Handle network errors with retry logic
+    if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {
+      if (!originalRequest._retry) {
         originalRequest._retry = true;
+        originalRequest._retryCount = originalRequest._retryCount || 0;
         
-        // Wait 1 second before retrying
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        return apiClient(originalRequest);
+        if (originalRequest._retryCount < (originalRequest.retry || 2)) {
+          originalRequest._retryCount++;
+          
+          // Wait before retrying
+          await new Promise(resolve => 
+            setTimeout(resolve, originalRequest.retryDelay || 1000)
+          );
+          
+          console.log(`Retrying request (${originalRequest._retryCount}/${originalRequest.retry || 2})`);
+          return apiClient(originalRequest);
+        }
       }
     }
     
@@ -68,11 +64,22 @@ apiClient.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Clear token and redirect to login if needed
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
+        removeAuthToken();
         
         // Dispatch custom event for components to react
         window.dispatchEvent(new CustomEvent('loginStatusChanged'));
       }
+    }
+    
+    // Log error for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.error('API Error:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        message: error.message,
+        code: error.code
+      });
     }
     
     return Promise.reject(error);

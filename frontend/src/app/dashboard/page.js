@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { User, Shirt, Zap, Plus, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 import DashboardErrorBoundary from '@/components/dashboard/DashboardErrorBoundary';
+import { getAuthToken, getUserData } from '../../lib/cookieUtils';
+import apiClient from '../../lib/apiClient';
 
 // Dashboard component wrapped with error boundary
 const DashboardContent = () => {
@@ -20,7 +22,7 @@ const DashboardContent = () => {
 
   useEffect(() => {
     // Check authentication and get user data
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) {
       router.push('/login');
       return;
@@ -29,10 +31,10 @@ const DashboardContent = () => {
     // Set axios default header
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     
-    // Get user data from localStorage or make API call
-    const userData = localStorage.getItem('user');
+    // Get user data from cookies or make API call
+    const userData = getUserData();
     if (userData) {
-      setUser(JSON.parse(userData));
+      setUser(userData);
     }
 
     fetchDashboardData();
@@ -40,22 +42,40 @@ const DashboardContent = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      setLoading(true);
       
-      const [modelsRes, clothesRes, tryonsRes] = await Promise.all([
-        axios.get(`${baseURL}/api/models`),
-        axios.get(`${baseURL}/api/clothes`),
-        axios.get(`${baseURL}/api/tryon/list?limit=5`).catch(() => ({ data: { data: { tasks: [], total: 0 } } }))
+      const [modelsRes, clothesRes, tryonsRes] = await Promise.allSettled([
+        apiClient.get('/models'),
+        apiClient.get('/clothes'),
+        apiClient.get('/tryon/list?limit=5')
       ]);
 
+      const modelsData = modelsRes.status === 'fulfilled' ? modelsRes.value.data.data?.assets || [] : [];
+      const clothesData = clothesRes.status === 'fulfilled' ? clothesRes.value.data.data?.assets || [] : [];
+      const tryonsData = tryonsRes.status === 'fulfilled' ? tryonsRes.value.data.data?.tasks || [] : [];
+      const tryonsTotal = tryonsRes.status === 'fulfilled' ? tryonsRes.value.data.data?.total || 0 : 0;
+
       setStats({
-        models: modelsRes.data.data?.assets?.length || 0,
-        clothes: clothesRes.data.data?.assets?.length || 0,
-        tryons: tryonsRes.data.data?.tasks?.length || tryonsRes.data.data?.total || 0,
-        recentTasks: tryonsRes.data.data?.tasks || []
+        models: modelsData.length,
+        clothes: clothesData.length,
+        tryons: tryonsTotal,
+        recentTasks: tryonsData
       });
+      
+      // Log any failed requests for debugging
+      if (modelsRes.status === 'rejected') console.warn('Models fetch failed:', modelsRes.reason?.message);
+      if (clothesRes.status === 'rejected') console.warn('Clothes fetch failed:', clothesRes.reason?.message);
+      if (tryonsRes.status === 'rejected') console.warn('Tryons fetch failed:', tryonsRes.reason?.message);
+      
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      // Set default values on error
+      setStats({
+        models: 0,
+        clothes: 0,
+        tryons: 0,
+        recentTasks: []
+      });
     } finally {
       setLoading(false);
     }

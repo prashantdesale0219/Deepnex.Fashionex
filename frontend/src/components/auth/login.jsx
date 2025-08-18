@@ -9,6 +9,7 @@ import { FaApple } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { MdEmail } from 'react-icons/md';
 import { Eye, EyeOff } from 'lucide-react';
+import { setAuthToken, setUserData } from '../../lib/cookieUtils';
 
 const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
   const router = useRouter();
@@ -60,8 +61,8 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
         });
         
         if (response.data.success) {
-          localStorage.setItem('token', response.data.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.data.user));
+          setAuthToken(response.data.data.token);
+          setUserData(response.data.data.user);
           axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`;
           // Dispatch custom event for navbar to detect login status change
           window.dispatchEvent(new Event('loginStatusChanged'));

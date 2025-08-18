@@ -148,9 +148,6 @@ const login = asyncHandler(async (req, res) => {
     throw new AppError('Email not verified. Please verify your email before logging in.', 401);
   }
   
-  // Update last login
-  await user.updateLastLogin();
-  
   // Generate token
   const token = generateToken(user._id);
   

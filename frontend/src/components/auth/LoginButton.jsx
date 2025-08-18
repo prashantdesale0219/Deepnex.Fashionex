@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, ChevronDown } from 'lucide-react';
 import LoginModal from './login';
+import { getAuthToken, getUserData, clearAuthCookies } from '../../lib/cookieUtils';
 
 const LoginButton = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,18 +16,17 @@ const LoginButton = () => {
 
   useEffect(() => {
     // Check if user is logged in
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = getAuthToken();
+    const userData = getUserData();
     
     if (token && userData) {
       setIsLoggedIn(true);
-      setUser(JSON.parse(userData));
+      setUser(userData);
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAuthCookies();
     setIsLoggedIn(false);
     setUser(null);
     setShowDropdown(false);
@@ -53,6 +53,11 @@ const LoginButton = () => {
         >
           <User className="w-4 h-4" />
           <span>{user.firstName}</span>
+          <ChevronDown 
+            className={`w-4 h-4 transition-transform duration-200 ${
+              showDropdown ? 'transform rotate-180' : ''
+            }`} 
+          />
         </button>
         
         {showDropdown && (

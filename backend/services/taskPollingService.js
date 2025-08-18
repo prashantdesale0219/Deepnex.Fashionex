@@ -50,12 +50,23 @@ class TaskPollingService {
   }
 
   async checkPendingTasks() {
+    if (!this.isRunning) {
+      return;
+    }
+    
     try {
+      // Check if database is connected
+      const mongoose = require('mongoose');
+      if (mongoose.connection.readyState !== 1) {
+        console.log('⚠️  Database not connected, skipping task polling...');
+        return;
+      }
+      
       // Find all tasks that are still in CREATED or PROCESSING status
       const pendingTasks = await TryOnTask.find({
         status: { $in: ['CREATED', 'PROCESSING'] },
         isDeleted: false
-      });
+      }).limit(50); // Limit to prevent overwhelming the system
 
       if (pendingTasks.length === 0) {
         return;

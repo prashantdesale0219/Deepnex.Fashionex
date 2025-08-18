@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 require('dotenv').config();
 
 // Import routes
@@ -22,6 +23,12 @@ const taskPollingService = require('./services/taskPollingService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Trust proxy for accurate IP addresses
+app.set('trust proxy', 1);
+
+// Compression middleware
+app.use(compression());
 
 // Security middleware with custom CSP for images
 app.use(helmet({
@@ -58,6 +65,14 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+
+// Request logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - IP: ${req.ip}`);
+    next();
+  });
+}
 
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));

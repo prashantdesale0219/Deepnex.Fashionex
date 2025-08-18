@@ -153,13 +153,14 @@ const tryOnTaskSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-tryOnTaskSchema.index({ taskId: 1 });
+// Note: taskId is already unique, so no need for additional index
 tryOnTaskSchema.index({ userId: 1, createdAt: -1 });
 tryOnTaskSchema.index({ status: 1 });
 tryOnTaskSchema.index({ userId: 1, status: 1 });
-tryOnTaskSchema.index({ createdAt: -1 });
 tryOnTaskSchema.index({ 'timing.submittedAt': -1 });
 tryOnTaskSchema.index({ isDeleted: 1 });
+// Compound index for common queries
+tryOnTaskSchema.index({ userId: 1, isDeleted: 1, status: 1 });
 
 // Pre-save middleware to update timing
 tryOnTaskSchema.pre('save', function(next) {

@@ -19,7 +19,9 @@ class FitRoomService {
       headers: {
         'X-API-KEY': this.apiKey,
         'User-Agent': 'FashionX/1.0.0'
-      }
+      },
+      maxRedirects: 5,
+      validateStatus: (status) => status < 500 // Don't throw on 4xx errors
     });
     
     // Add response interceptor for error handling

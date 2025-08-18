@@ -2,14 +2,14 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../../components/dashboard/Sidebar';
+import { isAuthenticated } from '../../lib/cookieUtils';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isAuthenticated()) {
       router.push('/login');
     }
   }, [router]);

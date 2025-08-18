@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { Upload, User, Trash2, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import DashboardErrorBoundary from '@/components/dashboard/DashboardErrorBoundary';
+import { getAuthToken } from '../../lib/cookieUtils';
 
 // Models component content
 const ModelsContent = () => {
@@ -17,7 +18,7 @@ const ModelsContent = () => {
 
   useEffect(() => {
     // Check authentication
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) {
       router.push('/login');
       return;

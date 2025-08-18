@@ -1,10 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import apiClient from '../../lib/apiClient';
 import { toast } from 'react-toastify';
 import { Play, Download, Eye, Clock, CheckCircle, XCircle, User, Shirt, Sparkles, ChevronDown, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { getAuthToken } from '../../lib/cookieUtils';
 
 const TryOn = () => {
   const router = useRouter();
@@ -21,6 +23,8 @@ const TryOn = () => {
   const [isClothTypeDropdownOpen, setIsClothTypeDropdownOpen] = useState(false);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [isClothDropdownOpen, setIsClothDropdownOpen] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const tryOnModes = [
     { value: 'single', label: 'Virtual Try-On', description: 'Try on clothing items virtually' }
@@ -29,13 +33,12 @@ const TryOn = () => {
   const clothTypes = [
     { value: 'upper', label: 'Upper Body', description: 'Shirts, T-shirts, Tops, etc.' },
     { value: 'lower', label: 'Lower Body', description: 'Pants, Skirts, Shorts, etc.' },
-    { value: 'full_set', label: 'Full Set', description: 'Dresses, Jumpsuits, etc.' },
-    { value: 'combo', label: 'Combo Set', description: 'Upper and Lower body combination' }
+    { value: 'full_set', label: 'Full Set', description: 'Dresses, Jumpsuits, etc.' }
   ];
 
   useEffect(() => {
     // Check authentication
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) {
       router.push('/login');
       return;
@@ -54,7 +57,7 @@ const TryOn = () => {
     return () => clearInterval(pollInterval);
   }, [router]);
 
-  // Function to check pending tasks
+  // Function to check pending tasks with better error handling
   const checkPendingTasks = async () => {
     try {
       const pendingTasks = tryOnTasks.filter(task => 
@@ -65,11 +68,18 @@ const TryOn = () => {
       
       console.log(`🔄 Checking ${pendingTasks.length} pending tasks...`);
       
-      // Check each pending task
+      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const axiosConfig = {
+        timeout: 8000, // 8 seconds timeout for task checking
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+      
+      // Check each pending task with error handling
       for (const task of pendingTasks) {
         try {
-          const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-          const response = await axios.get(`${baseURL}/api/tryon/${task.id}`);
+          const response = await axios.get(`${baseURL}/api/tryon/${task.id}`, axiosConfig);
           const updatedTask = response.data.data.task;
           
           // Update the task in state if status changed
@@ -91,21 +101,36 @@ const TryOn = () => {
             toast.error(`Try-on task failed. Please try again.`);
           }
         } catch (error) {
-          console.error(`Error checking task ${task.id}:`, error);
+          // Only log network errors, don't show toast for polling errors
+          if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {
+            console.warn(`⚠️  Network error checking task ${task.id}, will retry on next poll`);
+          } else {
+            console.error(`Error checking task ${task.id}:`, error);
+          }
         }
       }
     } catch (error) {
-      console.error('Error checking pending tasks:', error);
+      // Silent error handling for polling - don't spam user with errors
+      console.warn('⚠️  Error in task polling, will retry on next interval:', error.message);
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (retryCount = 0) => {
     try {
       const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      
+      // Configure axios with timeout and retry logic
+      const axiosConfig = {
+        timeout: 10000, // 10 seconds timeout
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+      
       const [modelsRes, clothesRes, tasksRes] = await Promise.all([
-        axios.get(`${baseURL}/api/models`),
-        axios.get(`${baseURL}/api/clothes`),
-        axios.get(`${baseURL}/api/tryon/list`)
+        apiClient.get('/models'),
+        apiClient.get('/clothes'),
+        apiClient.get('/tryon/list')
       ]);
       
       // Map validation status for models
@@ -152,11 +177,52 @@ const TryOn = () => {
       setModels(mappedModels);
       setClothes(mappedClothes);
       setTryOnTasks(mappedTasks);
+      setConnectionError(false); // Clear connection error on success
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error(`Failed to fetch data: ${error.response?.data?.message || error.message}`);
+      
+      // Implement retry logic for network errors
+      if (retryCount < 3 && (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED' || !error.response)) {
+        console.log(`🔄 Retrying data fetch... Attempt ${retryCount + 1}/3`);
+        setTimeout(() => {
+          fetchData(retryCount + 1);
+        }, (retryCount + 1) * 2000); // Exponential backoff: 2s, 4s, 6s
+        return;
+      }
+      
+      // Show user-friendly error message
+      const errorMessage = error.code === 'ERR_NETWORK' 
+        ? 'Network connection failed. Please check your internet connection and try again.'
+        : error.response?.data?.message || error.message;
+        
+      toast.error(`Failed to fetch data: ${errorMessage}`);
+      
+      // Set connection error and empty data on final failure
+       if (retryCount >= 3) {
+         setConnectionError(true);
+         setModels([]);
+         setClothes([]);
+         setTryOnTasks([]);
+       }
     } finally {
-      setLoading(false);
+      // Only set loading to false on final attempt or success
+      if (retryCount === 0) {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    setConnectionError(false);
+    try {
+      await fetchData();
+      toast.success('Data refreshed successfully!');
+    } catch (error) {
+      console.error('Manual refresh failed:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -168,8 +234,7 @@ const TryOn = () => {
 
     setCreating(true);
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.post(`${baseURL}/api/tryon`, {
+      const response = await apiClient.post('/tryon', {
         modelAssetId: selectedModel,
         clothAssetIds: [selectedCloth],
         clothType: selectedClothType,
@@ -199,8 +264,7 @@ const TryOn = () => {
 
   const handleDownloadResult = async (taskId) => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.get(`${baseURL}/api/tryon/${taskId}/download`, {
+      const response = await apiClient.get(`/tryon/${taskId}/download`, {
         responseType: 'blob'
       });
       
@@ -228,8 +292,7 @@ const TryOn = () => {
     }
     
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      await axios.delete(`${baseURL}/api/tryon/${taskId}`);
+      await apiClient.delete(`/tryon/${taskId}`);
       
       // Remove the task from state
       setTryOnTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
@@ -322,10 +385,41 @@ const TryOn = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 w-full">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#26140c] mb-2">Virtual Try-On</h1>
-        <p className="text-[#aa7156]">
-          Create virtual try-on experiences by combining your models and clothing items.
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-[#26140c] mb-2">Virtual Try-On</h1>
+            <p className="text-[#aa7156]">
+              Create virtual try-on experiences by combining your models and clothing items.
+            </p>
+          </div>
+          <div className="flex items-center space-x-3">
+            {connectionError && (
+              <div className="flex items-center text-red-600 text-sm">
+                <XCircle className="w-4 h-4 mr-1" />
+                <span>Connection Error</span>
+              </div>
+            )}
+            <button
+              onClick={handleManualRefresh}
+              disabled={isRefreshing || loading}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isRefreshing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <span>Refreshing...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Refresh</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Create Try-On Section */}
@@ -463,25 +557,25 @@ const TryOn = () => {
                           setIsModelDropdownOpen(false);
                         }}
                       >
-                        <div className="flex items-center w-full">
+                        <div className="flex items-center w-full min-w-0">
                           <img
                             src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
                             alt={model.originalName}
-                            className="w-12 h-12 object-cover rounded-lg mr-3"
+                            className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
                             onError={(e) => {
                               e.target.src = '/placeholder-model.svg';
                             }}
                           />
-                          <div className="flex-1">
-                            <div className={`font-medium ${selectedModel === (model.id || model._id) ? 'text-blue-600' : 'text-gray-900'}`}>
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-medium truncate ${selectedModel === (model.id || model._id) ? 'text-blue-600' : 'text-gray-900'}`}>
                               {model.metadata?.name || model.originalName}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 truncate">
                               {model.metadata?.gender || 'Unknown'}
                             </div>
                           </div>
                           {selectedModel === (model.id || model._id) && (
-                            <CheckCircle className="w-4 h-4 text-blue-600" />
+                            <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0" />
                           )}
                         </div>
                       </div>
@@ -501,20 +595,20 @@ const TryOn = () => {
                 onClick={() => setIsClothDropdownOpen(!isClothDropdownOpen)}
               >
                 {selectedCloth ? (
-                  <div className="flex items-center">
+                  <div className="flex items-center min-w-0 flex-1">
                     {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth) && (
                       <>
                         <img
                           src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.fileUrl}`}
                           alt="Selected clothing"
-                          className="w-12 h-12 object-cover rounded-lg mr-3"
+                          className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
                         />
-                        <div>
-                          <div className="font-medium text-gray-900">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-gray-900 truncate">
                             {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.metadata?.name || 
                              validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.originalName}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 truncate">
                             {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.metadata?.category?.replace('_', ' ') || 'Unknown'}
                           </div>
                         </div>
@@ -539,22 +633,22 @@ const TryOn = () => {
                           setIsClothDropdownOpen(false);
                         }}
                       >
-                        <div className="flex items-center w-full">
+                        <div className="flex items-center w-full min-w-0">
                           <img
                             src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
                             alt={cloth.originalName}
-                            className="w-12 h-12 object-cover rounded-lg mr-3"
+                            className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
                           />
-                          <div className="flex-1">
-                            <div className={`font-medium ${selectedCloth === (cloth.id || cloth._id) ? 'text-blue-600' : 'text-gray-900'}`}>
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-medium truncate ${selectedCloth === (cloth.id || cloth._id) ? 'text-blue-600' : 'text-gray-900'}`}>
                               {cloth.metadata?.name || cloth.originalName}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 truncate">
                               {cloth.metadata?.category?.replace('_', ' ') || 'Unknown'}
                             </div>
                           </div>
                           {selectedCloth === (cloth.id || cloth._id) && (
-                            <CheckCircle className="w-4 h-4 text-blue-600" />
+                            <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0" />
                           )}
                         </div>
                       </div>

@@ -14,6 +14,7 @@ import {
   X,
   Home
 } from 'lucide-react';
+import { getUserData, clearAuthCookies } from '../../lib/cookieUtils';
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -22,15 +23,14 @@ const Sidebar = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
+    const userData = getUserData();
     if (userData) {
-      setUser(JSON.parse(userData));
+      setUser(userData);
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAuthCookies();
     toast.success('Logged out successfully!');
     router.push('/');
   };
