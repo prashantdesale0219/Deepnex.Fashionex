@@ -165,7 +165,7 @@ const DashboardContent = () => {
           Welcome back, {user?.firstName}! 👋
         </h1>
         <p className="text-[#aa7156] mt-2">
-          Here's what's happening with your virtual try-on projects today.
+          Here&apos;s what&apos;s happening with your virtual try-on projects today.
         </p>
       </div>
 

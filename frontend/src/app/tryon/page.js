@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import apiClient from '../../lib/apiClient';
 import { toast } from 'react-toastify';
@@ -519,9 +519,11 @@ const TryOn = () => {
                   <div className="flex items-center">
                     {validModels.find(model => (model.id || model._id) === selectedModel) && (
                       <>
-                        <img
+                        <Image
                           src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validModels.find(model => (model.id || model._id) === selectedModel)?.fileUrl}`}
                           alt="Selected model"
+                          width={48}
+                          height={48}
                           className="w-12 h-12 object-cover rounded-lg mr-3"
                           onError={(e) => {
                             e.target.src = '/placeholder-model.svg';
@@ -558,9 +560,11 @@ const TryOn = () => {
                         }}
                       >
                         <div className="flex items-center w-full min-w-0">
-                          <img
+                          <Image
                             src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
                             alt={model.originalName}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
                             onError={(e) => {
                               e.target.src = '/placeholder-model.svg';
@@ -598,9 +602,11 @@ const TryOn = () => {
                   <div className="flex items-center min-w-0 flex-1">
                     {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth) && (
                       <>
-                        <img
+                        <Image
                           src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.fileUrl}`}
                           alt="Selected clothing"
+                          width={48}
+                          height={48}
                           className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
                         />
                         <div className="min-w-0 flex-1">
@@ -634,9 +640,11 @@ const TryOn = () => {
                         }}
                       >
                         <div className="flex items-center w-full min-w-0">
-                          <img
+                          <Image
                             src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
                             alt={cloth.originalName}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">

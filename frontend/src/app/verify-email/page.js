@@ -43,7 +43,7 @@ const VerifyEmail = () => {
     };
 
     verifyEmail();
-  }, [token]);
+  }, [token, startCountdown]);
 
   const startCountdown = (redirectUrl = '/?login=true') => {
     const timer = setInterval(() => {

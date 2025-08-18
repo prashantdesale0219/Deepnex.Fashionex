@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { Upload, Shirt, Trash2, Eye, CheckCircle, XCircle, Clock, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getAuthToken } from '../../lib/cookieUtils';
+import Image from 'next/image';
 
 const Clothes = () => {
   const router = useRouter();
@@ -273,10 +274,11 @@ const Clothes = () => {
             {clothes.map((cloth) => (
               <div key={cloth.id || cloth._id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200">
                 <div className="relative aspect-square group">
-                  <img
+                  <Image
                     src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
                     alt={cloth.originalName}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                     onError={(e) => {
                       e.target.src = '/placeholder-cloth.jpg';
                     }}
@@ -378,9 +380,11 @@ const Clothes = () => {
               </div>
               
               <div className="mb-4">
-                <img
+                <Image
                   src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${selectedCloth.fileUrl}`}
                   alt={selectedCloth.originalName}
+                  width={500}
+                  height={300}
                   className="w-full h-auto rounded-lg"
                 />
               </div>
