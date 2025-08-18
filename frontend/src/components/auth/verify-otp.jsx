@@ -1,12 +1,12 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { IoMdClose } from 'react-icons/io';
 
-const VerifyOTPModal = ({ isOpen, onClose }) => {
+const VerifyOTPContent = ({ isOpen, onClose }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -207,6 +207,25 @@ const VerifyOTPModal = ({ isOpen, onClose }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const VerifyOTPModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading verification...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyOTPContent isOpen={isOpen} onClose={onClose} />
+    </Suspense>
   );
 };
 

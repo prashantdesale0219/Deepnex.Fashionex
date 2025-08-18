@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
@@ -11,7 +11,7 @@ import { MdEmail } from 'react-icons/md';
 import { Eye, EyeOff } from 'lucide-react';
 import { setAuthToken, setUserData } from '../../lib/cookieUtils';
 
-const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
+const LoginModalContent = ({ isOpen, onClose, initialMode = 'login' }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoginMode, setIsLoginMode] = useState(initialMode === 'login');
@@ -318,6 +318,25 @@ const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const LoginModal = ({ isOpen, onClose, initialMode = 'login' }) => {
+  if (!isOpen) return null;
+
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <LoginModalContent isOpen={isOpen} onClose={onClose} initialMode={initialMode} />
+    </Suspense>
   );
 };
 
