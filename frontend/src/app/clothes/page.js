@@ -275,7 +275,7 @@ const Clothes = () => {
               <div key={cloth.id || cloth._id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200">
                 <div className="relative aspect-square group">
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
+                    src={`https://deepnex-fashionex.onrender.com${cloth.fileUrl}`}
                     alt={cloth.originalName}
                     fill
                     className="object-cover"
@@ -381,7 +381,7 @@ const Clothes = () => {
               
               <div className="mb-4">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${selectedCloth.fileUrl}`}
+                  src={`https://deepnex-fashionex.onrender.com${selectedCloth.fileUrl}`}
                   alt={selectedCloth.originalName}
                   width={500}
                   height={300}

@@ -230,7 +230,7 @@ const ModelsContent = () => {
               <div key={model.id || model._id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200">
                 <div className="relative aspect-square group">
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
+                    src={`https://deepnex-fashionex.onrender.com${model.fileUrl}`}
                     alt={model.originalName}
                     fill
                     className="object-cover"

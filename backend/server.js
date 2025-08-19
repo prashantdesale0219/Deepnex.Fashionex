@@ -37,8 +37,8 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https:"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "http://localhost:5000", "http://localhost:3000", "https://deepnex-fashionex.onrender.com"],
-      connectSrc: ["'self'", "http://localhost:5000", "http://localhost:3000", "https://deepnex-fashionex.onrender.com", "wss://deepnex-fashionex.onrender.com"],
+      imgSrc: ["'self'", "data:", "http://localhost:5000", "http://localhost:3000", "https://deepnex-fashionex.onrender.com", "https://deepnex-fashionex.vercel.app", "https://deepnex-fashionex-git-main-prashants-projects-a9b5b5b5.vercel.app"],
+      connectSrc: ["'self'", "http://localhost:5000", "http://localhost:3000", "https://deepnex-fashionex.onrender.com", "wss://deepnex-fashionex.onrender.com", "https://deepnex-fashionex.vercel.app", "https://deepnex-fashionex-git-main-prashants-projects-a9b5b5b5.vercel.app"],
       fontSrc: ["'self'", "https:", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -63,6 +63,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://deepnex-fashionex.vercel.app',
+    'https://deepnex-fashionex-git-main-prashants-projects-a9b5b5b5.vercel.app',
     process.env.CLIENT_URL
   ].filter(Boolean),
   credentials: true,

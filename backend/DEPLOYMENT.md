@@ -60,6 +60,13 @@ Update your frontend environment variables:
 NEXT_PUBLIC_API_URL=https://your-app-name.onrender.com
 ```
 
+### Vercel Frontend Deployment
+
+For Vercel deployment, ensure:
+1. Set environment variable: `NEXT_PUBLIC_API_URL=https://your-backend.onrender.com`
+2. Update image URLs in components to use production backend
+3. Ensure CORS includes your Vercel domain in backend
+
 ### Troubleshooting
 
 1. **Database Connection**: Ensure MongoDB Atlas IP whitelist includes `0.0.0.0/0`
