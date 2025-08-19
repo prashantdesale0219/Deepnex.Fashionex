@@ -7,14 +7,26 @@ const verifyToken = async (req, res, next) => {
   try {
     let token;
     
+    // Debug logging for production
+    if (process.env.NODE_ENV === 'production') {
+      console.log('Auth Debug - Headers:', {
+        authorization: req.headers.authorization ? 'Present' : 'Missing',
+        cookie: req.headers.cookie ? 'Present' : 'Missing',
+        origin: req.headers.origin
+      });
+    }
+    
     // Check for token in cookies first, then Authorization header
     if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
+      console.log('Token found in cookies');
     } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+      console.log('Token found in Authorization header');
     }
     
     if (!token) {
+      console.log('No token provided - cookies:', !!req.cookies?.token, 'auth header:', !!req.headers.authorization);
       return res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'

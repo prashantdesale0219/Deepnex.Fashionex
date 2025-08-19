@@ -24,9 +24,22 @@ apiClient.interceptors.request.use(
     // Get token from cookies if available
     const token = getAuthToken();
     
+    // Debug logging for production
+    if (process.env.NODE_ENV === 'production') {
+      console.log('API Request Debug:', {
+        url: config.url,
+        method: config.method,
+        hasToken: !!token,
+        tokenLength: token ? token.length : 0
+      });
+    }
+    
     // Add token to headers if available
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Token added to request headers');
+    } else {
+      console.log('No token available for request');
     }
     
     return config;
