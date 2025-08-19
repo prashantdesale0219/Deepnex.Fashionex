@@ -33,8 +33,7 @@ const ModelsContent = () => {
 
   const fetchModels = async () => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.get(`${baseURL}/api/models`);
+      const response = await axios.get('/api/models');
       const modelsData = response.data.data?.assets || [];
       // Map validation status properly
       const mappedModels = modelsData.map(model => ({
@@ -72,8 +71,7 @@ const ModelsContent = () => {
     formData.append('model', file);
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      await axios.post(`${baseURL}/api/models/upload`, formData, {
+      await axios.post('/api/models/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -104,8 +102,7 @@ const ModelsContent = () => {
     }
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      await axios.delete(`${baseURL}/api/models/${modelId}`);
+      await axios.delete(`/api/models/${modelId}`);
       toast.success('Model deleted successfully!');
       fetchModels();
     } catch (error) {
@@ -117,8 +114,7 @@ const ModelsContent = () => {
 
   const handleValidate = async (modelId) => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.post(`${baseURL}/api/models/${modelId}/revalidate`);
+      const response = await axios.post(`/api/models/${modelId}/revalidate`);
       
       // Update the model status immediately based on response
       setModels(prevModels => 

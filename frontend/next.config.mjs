@@ -13,13 +13,28 @@ const nextConfig = {
         port: '5000',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'deepnex-fashionex.onrender.com',
+        pathname: '/uploads/**',
+      },
     ],
   },
   // Optimize static asset loading
-  experimental: {
-    optimizeCss: true,
-    optimizeServerReact: true,
-  },
+   experimental: {
+     optimizeCss: true,
+     optimizeServerReact: true,
+   },
+   // Proxy configuration for production backend
+   async rewrites() {
+     return [
+       {
+         source: '/api/:path*',
+         destination: 'https://deepnex-fashionex.onrender.com/api/:path*',
+       },
+     ];
+   },
 };
+
 
 export default nextConfig;

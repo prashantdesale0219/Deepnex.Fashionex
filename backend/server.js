@@ -22,7 +22,7 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 const taskPollingService = require('./services/taskPollingService');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 // Trust proxy for accurate IP addresses
 app.set('trust proxy', 1);
@@ -37,8 +37,8 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https:"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "http://localhost:5000", "http://localhost:3000"],
-      connectSrc: ["'self'", "http://localhost:5000", "http://localhost:3000"],
+      imgSrc: ["'self'", "data:", "http://localhost:5000", "http://localhost:3000", "https://deepnex-fashionex.onrender.com"],
+      connectSrc: ["'self'", "http://localhost:5000", "http://localhost:3000", "https://deepnex-fashionex.onrender.com", "wss://deepnex-fashionex.onrender.com"],
       fontSrc: ["'self'", "https:", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -60,11 +60,15 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000' || 'https://deepnex-fashionex.vercel.app',
-
+  origin: [
+    'http://localhost:3000',
+    'https://deepnex-fashionex.vercel.app',
+    process.env.CLIENT_URL
+  ].filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
 // Request logging middleware

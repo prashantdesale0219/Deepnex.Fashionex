@@ -23,8 +23,7 @@ const VerifyEmailContent = () => {
 
     const verifyEmail = async () => {
       try {
-        const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const response = await axios.post(`${baseURL}/api/auth/verify-email`, { token });
+        const response = await axios.post('/api/auth/verify-email', { token });
         
         if (response.data.success) {
           setVerificationStatus('success');

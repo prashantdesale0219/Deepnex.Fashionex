@@ -68,7 +68,6 @@ const TryOn = () => {
       
       console.log(`🔄 Checking ${pendingTasks.length} pending tasks...`);
       
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const axiosConfig = {
         timeout: 8000, // 8 seconds timeout for task checking
         headers: {
@@ -79,7 +78,7 @@ const TryOn = () => {
       // Check each pending task with error handling
       for (const task of pendingTasks) {
         try {
-          const response = await axios.get(`${baseURL}/api/tryon/${task.id}`, axiosConfig);
+          const response = await axios.get(`/api/tryon/${task.id}`, axiosConfig);
           const updatedTask = response.data.data.task;
           
           // Update the task in state if status changed
@@ -117,8 +116,6 @@ const TryOn = () => {
 
   const fetchData = async (retryCount = 0) => {
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      
       // Configure axios with timeout and retry logic
       const axiosConfig = {
         timeout: 10000, // 10 seconds timeout
@@ -520,7 +517,7 @@ const TryOn = () => {
                     {validModels.find(model => (model.id || model._id) === selectedModel) && (
                       <>
                         <Image
-                          src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validModels.find(model => (model.id || model._id) === selectedModel)?.fileUrl}`}
+                          src={`https://deepnex-fashionex.onrender.com${validModels.find(model => (model.id || model._id) === selectedModel)?.fileUrl}`}
                           alt="Selected model"
                           width={48}
                           height={48}
@@ -561,7 +558,7 @@ const TryOn = () => {
                       >
                         <div className="flex items-center w-full min-w-0">
                           <Image
-                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${model.fileUrl}`}
+                            src={`https://deepnex-fashionex.onrender.com${model.fileUrl}`}
                             alt={model.originalName}
                             width={48}
                             height={48}
@@ -603,7 +600,7 @@ const TryOn = () => {
                     {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth) && (
                       <>
                         <Image
-                          src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.fileUrl}`}
+                          src={`https://deepnex-fashionex.onrender.com${validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.fileUrl}`}
                           alt="Selected clothing"
                           width={48}
                           height={48}
@@ -641,7 +638,7 @@ const TryOn = () => {
                       >
                         <div className="flex items-center w-full min-w-0">
                           <Image
-                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cloth.fileUrl}`}
+                            src={`https://deepnex-fashionex.onrender.com${cloth.fileUrl}`}
                             alt={cloth.originalName}
                             width={48}
                             height={48}
@@ -730,7 +727,7 @@ const TryOn = () => {
                       <div className="flex-shrink-0">
                         <div className="relative w-16 h-16 rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                           <Image
-                            src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${task.result.resultImageUrl}`}
+                            src={`https://deepnex-fashionex.onrender.com${task.result.resultImageUrl}`}
                             alt="Virtual Try-On Result"
                             fill
                             sizes="64px"
@@ -836,7 +833,7 @@ const TryOn = () => {
               {previewTask.result?.resultImageUrl && (
                 <div className="mb-4 relative w-full aspect-[3/4] rounded-lg overflow-hidden">
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${previewTask.result.resultImageUrl}`}
+                    src={`https://deepnex-fashionex.onrender.com${previewTask.result.resultImageUrl}`}
                     alt="Virtual Try-On Result"
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"

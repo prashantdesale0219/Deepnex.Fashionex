@@ -41,8 +41,7 @@ const VerifyOTPContent = ({ isOpen, onClose }) => {
     setLoading(true);
     
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await axios.post(`${baseURL}/api/auth/resend-otp`, {
+      const response = await axios.post('/api/auth/resend-otp', {
         email: formData.email
       });
       
@@ -68,10 +67,8 @@ const VerifyOTPContent = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      
       // Verify email with OTP
-      const response = await axios.post(`${baseURL}/api/auth/verify-email`, {
+      const response = await axios.post('/api/auth/verify-email', {
         email: formData.email,
         otp: formData.otp
       });

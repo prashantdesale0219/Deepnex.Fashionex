@@ -51,11 +51,9 @@ const LoginModalContent = ({ isOpen, onClose, initialMode = 'login' }) => {
     setLoading(true);
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      
       if (isLoginMode) {
         // Login without OTP
-        const response = await axios.post(`${baseURL}/api/auth/login`, {
+        const response = await axios.post('/api/auth/login', {
           email: formData.email,
           password: formData.password
         });
@@ -72,7 +70,7 @@ const LoginModalContent = ({ isOpen, onClose, initialMode = 'login' }) => {
         }
       } else {
         // Register
-        const response = await axios.post(`${baseURL}/api/auth/signup`, {
+        const response = await axios.post('/api/auth/signup', {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,

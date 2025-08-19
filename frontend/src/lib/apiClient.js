@@ -6,11 +6,13 @@ import { getAuthToken, removeAuthToken } from './cookieUtils';
  * Helps reduce network-related errors and improves reliability
  */
 const apiClient = axios.create({
-  baseURL: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000') + '/api',
-  timeout: 10000, // 10 seconds - reduced timeout
+  baseURL: '/api', // Use proxy for production backend
+  timeout: 15000, // 15 seconds for production
   headers: {
     'Content-Type': 'application/json',
   },
+  // CORS configuration for production
+  withCredentials: false,
   // Add retry configuration
   retry: 3,
   retryDelay: 1000,
