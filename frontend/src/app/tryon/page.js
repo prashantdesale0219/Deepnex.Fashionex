@@ -380,16 +380,16 @@ const TryOn = () => {
   const validClothes = getValidClothes();
 
   return (
-    <div className="max-w-7xl mx-auto p-6 w-full">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+    <div className="max-w-7xl mx-auto p-3 sm:p-6 w-full">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-[#26140c] mb-2">Virtual Try-On</h1>
-            <p className="text-[#aa7156]">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#26140c] mb-2">Virtual Try-On</h1>
+            <p className="text-[#aa7156] text-sm sm:text-base">
               Create virtual try-on experiences by combining your models and clothing items.
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {connectionError && (
               <div className="flex items-center text-red-600 text-sm">
                 <XCircle className="w-4 h-4 mr-1" />
@@ -399,19 +399,19 @@ const TryOn = () => {
             <button
               onClick={handleManualRefresh}
               disabled={isRefreshing || loading}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
             >
               {isRefreshing ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  <span>Refreshing...</span>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
+                  <span className="hidden sm:inline">Refreshing...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <span>Refresh</span>
+                  <span className="hidden sm:inline">Refresh</span>
                 </>
               )}
             </button>
@@ -420,8 +420,8 @@ const TryOn = () => {
       </div>
 
       {/* Create Try-On Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <h2 className="text-xl font-semibold text-[#26140c] mb-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
+        <h2 className="text-lg sm:text-xl font-semibold text-[#26140c] mb-4 sm:mb-6">
           Create New Try-On
         </h2>
         
@@ -450,25 +450,25 @@ const TryOn = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Mode Selection removed as we only have one mode now */}
             
             {/* Cloth Type Selection - Dropdown */}
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+            <div className="relative sm:col-span-2 lg:col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                 Clothing Type
               </label>
               <div 
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
+                className="flex items-center justify-between p-2 sm:p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
                 onClick={() => setIsClothTypeDropdownOpen(!isClothTypeDropdownOpen)}
               >
-                <div className="flex items-center">
+                <div className="flex items-center min-w-0 flex-1">
                   {getClothTypeIcon(selectedClothType)}
-                  <div className="ml-2">
-                    <div className="font-medium text-gray-900">
+                  <div className="ml-2 min-w-0 flex-1">
+                    <div className="font-medium text-gray-900 text-sm sm:text-base truncate">
                       {clothTypes.find(type => type.value === selectedClothType)?.label}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 truncate hidden sm:block">
                       {clothTypes.find(type => type.value === selectedClothType)?.description}
                     </div>
                   </div>
@@ -481,20 +481,20 @@ const TryOn = () => {
                   {clothTypes.map((type) => (
                     <div 
                       key={type.value} 
-                      className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 ${selectedClothType === type.value ? 'bg-blue-50' : ''}`}
+                      className={`flex items-center p-2 sm:p-3 cursor-pointer hover:bg-gray-50 ${selectedClothType === type.value ? 'bg-blue-50' : ''}`}
                       onClick={() => {
                         setSelectedClothType(type.value);
                         setIsClothTypeDropdownOpen(false);
                       }}
                     >
-                      <div className="flex items-center w-full">
+                      <div className="flex items-center w-full min-w-0">
                         {getClothTypeIcon(type.value)}
-                        <div className="ml-2 flex-1">
-                          <div className={`font-medium ${selectedClothType === type.value ? 'text-blue-600' : 'text-gray-900'}`}>{type.label}</div>
-                          <div className="text-xs text-gray-500">{type.description}</div>
+                        <div className="ml-2 flex-1 min-w-0">
+                          <div className={`font-medium text-sm sm:text-base truncate ${selectedClothType === type.value ? 'text-blue-600' : 'text-gray-900'}`}>{type.label}</div>
+                          <div className="text-xs text-gray-500 truncate hidden sm:block">{type.description}</div>
                         </div>
                         {selectedClothType === type.value && (
-                          <CheckCircle className="w-4 h-4 text-blue-600" />
+                          <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0" />
                         )}
                       </div>
                     </div>
@@ -505,15 +505,15 @@ const TryOn = () => {
 
             {/* Model Selection - Dropdown */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                 Select Model
               </label>
               <div 
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
+                className="flex items-center justify-between p-2 sm:p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
               >
                 {selectedModel ? (
-                  <div className="flex items-center">
+                  <div className="flex items-center min-w-0 flex-1">
                     {validModels.find(model => (model.id || model._id) === selectedModel) && (
                       <>
                         <Image
@@ -521,17 +521,17 @@ const TryOn = () => {
                           alt="Selected model"
                           width={48}
                           height={48}
-                          className="w-12 h-12 object-cover rounded-lg mr-3"
+                          className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg mr-2 sm:mr-3 flex-shrink-0"
                           onError={(e) => {
                             e.target.src = '/placeholder-model.svg';
                           }}
                         />
-                        <div>
-                          <div className="font-medium text-gray-900">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-gray-900 text-sm sm:text-base truncate">
                             {validModels.find(model => (model.id || model._id) === selectedModel)?.metadata?.name || 
                              validModels.find(model => (model.id || model._id) === selectedModel)?.originalName}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 truncate hidden sm:block">
                             {validModels.find(model => (model.id || model._id) === selectedModel)?.metadata?.gender || 'Unknown'}
                           </div>
                         </div>
@@ -539,7 +539,7 @@ const TryOn = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="text-gray-500">Select a model</div>
+                  <div className="text-gray-500 text-sm sm:text-base">Select a model</div>
                 )}
                 <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isModelDropdownOpen ? 'transform rotate-180' : ''}`} />
               </div>
@@ -550,7 +550,7 @@ const TryOn = () => {
                     {validModels.map((model) => (
                       <div 
                         key={model.id || model._id} 
-                        className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 ${selectedModel === (model.id || model._id) ? 'bg-blue-50' : ''}`}
+                        className={`flex items-center p-2 sm:p-3 cursor-pointer hover:bg-gray-50 ${selectedModel === (model.id || model._id) ? 'bg-blue-50' : ''}`}
                         onClick={() => {
                           setSelectedModel(model.id || model._id);
                           setIsModelDropdownOpen(false);
@@ -562,16 +562,16 @@ const TryOn = () => {
                             alt={model.originalName}
                             width={48}
                             height={48}
-                            className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
+                            className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg mr-2 sm:mr-3 flex-shrink-0"
                             onError={(e) => {
                               e.target.src = '/placeholder-model.svg';
                             }}
                           />
                           <div className="flex-1 min-w-0">
-                            <div className={`font-medium truncate ${selectedModel === (model.id || model._id) ? 'text-blue-600' : 'text-gray-900'}`}>
+                            <div className={`font-medium text-sm sm:text-base truncate ${selectedModel === (model.id || model._id) ? 'text-blue-600' : 'text-gray-900'}`}>
                               {model.metadata?.name || model.originalName}
                             </div>
-                            <div className="text-xs text-gray-500 truncate">
+                            <div className="text-xs text-gray-500 truncate hidden sm:block">
                               {model.metadata?.gender || 'Unknown'}
                             </div>
                           </div>
@@ -588,11 +588,11 @@ const TryOn = () => {
 
             {/* Cloth Selection - Dropdown */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                 Select Clothing
               </label>
               <div 
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
+                className="flex items-center justify-between p-2 sm:p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 bg-white"
                 onClick={() => setIsClothDropdownOpen(!isClothDropdownOpen)}
               >
                 {selectedCloth ? (
@@ -604,14 +604,14 @@ const TryOn = () => {
                           alt="Selected clothing"
                           width={48}
                           height={48}
-                          className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
+                          className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg mr-2 sm:mr-3 flex-shrink-0"
                         />
                         <div className="min-w-0 flex-1">
-                          <div className="font-medium text-gray-900 truncate">
+                          <div className="font-medium text-gray-900 text-sm sm:text-base truncate">
                             {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.metadata?.name || 
                              validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.originalName}
                           </div>
-                          <div className="text-xs text-gray-500 truncate">
+                          <div className="text-xs text-gray-500 truncate hidden sm:block">
                             {validClothes.find(cloth => (cloth.id || cloth._id) === selectedCloth)?.metadata?.category?.replace('_', ' ') || 'Unknown'}
                           </div>
                         </div>
@@ -630,7 +630,7 @@ const TryOn = () => {
                     {validClothes.map((cloth) => (
                       <div 
                         key={cloth.id || cloth._id} 
-                        className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 ${selectedCloth === (cloth.id || cloth._id) ? 'bg-blue-50' : ''}`}
+                        className={`flex items-center p-2 sm:p-3 cursor-pointer hover:bg-gray-50 ${selectedCloth === (cloth.id || cloth._id) ? 'bg-blue-50' : ''}`}
                         onClick={() => {
                           setSelectedCloth(cloth.id || cloth._id);
                           setIsClothDropdownOpen(false);
@@ -642,13 +642,13 @@ const TryOn = () => {
                             alt={cloth.originalName}
                             width={48}
                             height={48}
-                            className="w-12 h-12 object-cover rounded-lg mr-3 flex-shrink-0"
+                            className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg mr-2 sm:mr-3 flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
-                            <div className={`font-medium truncate ${selectedCloth === (cloth.id || cloth._id) ? 'text-blue-600' : 'text-gray-900'}`}>
+                            <div className={`font-medium text-sm sm:text-base truncate ${selectedCloth === (cloth.id || cloth._id) ? 'text-blue-600' : 'text-gray-900'}`}>
                               {cloth.metadata?.name || cloth.originalName}
                             </div>
-                            <div className="text-xs text-gray-500 truncate">
+                            <div className="text-xs text-gray-500 truncate hidden sm:block">
                               {cloth.metadata?.category?.replace('_', ' ') || 'Unknown'}
                             </div>
                           </div>
@@ -666,20 +666,20 @@ const TryOn = () => {
         )}
         
         {validModels.length > 0 && validClothes.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <button
               onClick={handleCreateTryOn}
               disabled={!selectedModel || !selectedCloth || creating}
-              className="bg-gradient-to-r from-[#26140c] to-[#aa7156] text-white px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center w-full md:w-auto"
+              className="bg-gradient-to-r from-[#26140c] to-[#aa7156] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center w-full text-sm sm:text-base"
             >
               {creating ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
                   <span className="font-medium">Creating Try-On...</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-5 h-5 mr-3" fill="white" />
+                  <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" fill="white" />
                   <span className="font-medium">Create Virtual Try-On</span>
                 </>
               )}
@@ -689,9 +689,9 @@ const TryOn = () => {
       </div>
 
       {/* Try-On Tasks */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-[#26140c]">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-[#26140c]">
             Try-On History ({tryOnTasks.length})
           </h2>
         </div>
@@ -699,18 +699,18 @@ const TryOn = () => {
         {tryOnTasks.length > 0 ? (
           <div className="space-y-4">
             {tryOnTasks.map((task) => (
-              <div key={task.id || task._id || task.taskId} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+              <div key={task.id || task._id || task.taskId} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                  <div className="flex items-center space-x-2 sm:space-x-4">
                     {/* Status Icon and Progress */}
                     <div className="flex-shrink-0">
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(task.status)}
                         {(task.status?.toLowerCase() === 'processing' || task.status?.toLowerCase() === 'created') && (
-                          <div className="w-24">
-                            <div className="bg-gray-200 rounded-full h-2">
+                          <div className="w-16 sm:w-24">
+                            <div className="bg-gray-200 rounded-full h-1.5 sm:h-2">
                               <div 
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                                className="bg-blue-600 h-1.5 sm:h-2 rounded-full transition-all duration-300" 
                                 style={{ width: `${task.progress || 0}%` }}
                               ></div>
                             </div>
@@ -725,12 +725,12 @@ const TryOn = () => {
                     {/* Result Image Thumbnail */}
                     {task.status?.toLowerCase() === 'completed' && task.result?.resultImageUrl && (
                       <div className="flex-shrink-0">
-                        <div className="relative w-16 h-16 rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                           <Image
                             src={`https://deepnex-fashionex.onrender.com${task.result.resultImageUrl}`}
                             alt="Virtual Try-On Result"
                             fill
-                            sizes="64px"
+                            sizes="(max-width: 640px) 48px, 64px"
                             style={{ objectFit: 'cover' }}
                             onError={(e) => {
                               console.error('Failed to load thumbnail:', e.target.src);
@@ -741,11 +741,11 @@ const TryOn = () => {
                     )}
                     
                     {/* Task Info */}
-                    <div>
-                      <h3 className="font-medium text-gray-900">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">
                         Try-On Task #{task.taskId?.slice(-8) || 'Unknown'}
                       </h3>
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 mt-1">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)} capitalize`}>
                           {task.status?.toLowerCase() || 'pending'}
                         </span>
@@ -756,32 +756,32 @@ const TryOn = () => {
                   </div>
                   
                   {/* Actions */}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                     {task.status?.toLowerCase() === 'completed' && (
                       <>
                         <button
                           onClick={() => setPreviewTask(task)}
-                          className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
+                          className="bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg hover:bg-blue-700 transition-colors"
                           title="Preview"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
                         <button
                           onClick={() => handleDownloadResult(task.id)}
-                          className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors"
+                          className="bg-green-600 text-white p-1.5 sm:p-2 rounded-lg hover:bg-green-700 transition-colors"
                           title="Download"
                         >
-                          <Download className="w-4 h-4" />
+                          <Download className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
                       </>
                     )}
                     {/* Delete button - available for all tasks */}
                     <button
                       onClick={() => handleDeleteTask(task.id)}
-                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors"
+                      className="bg-red-600 text-white p-1.5 sm:p-2 rounded-lg hover:bg-red-700 transition-colors"
                       title="Delete"
                     >
-                      <Trash className="w-4 h-4" />
+                      <Trash className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 </div>
@@ -789,12 +789,12 @@ const TryOn = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <Sparkles className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="text-center py-8 sm:py-12">
+            <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               No try-on tasks yet
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
               Create your first virtual try-on to see results here.
             </p>
           </div>
@@ -803,29 +803,29 @@ const TryOn = () => {
 
       {/* Preview Modal */}
       {previewTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-gray-900">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-auto">
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                   Try-On Result #{previewTask.taskId?.slice(-8)}
                 </h3>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-shrink-0">
                   <button
                     onClick={() => {
                       handleDeleteTask(previewTask.id);
                     }}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 p-1"
                     title="Delete this try-on task"
                   >
-                    <Trash className="w-6 h-6" />
+                    <Trash className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                   <button
                     onClick={() => setPreviewTask(null)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 p-1"
                     title="Close preview"
                   >
-                    <XCircle className="w-6 h-6" />
+                    <XCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
               </div>
@@ -843,17 +843,17 @@ const TryOn = () => {
                 </div>
               )}
               
-              <div className="flex space-x-3 mt-6">
+              <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-6">
                 <button
                   onClick={() => handleDownloadResult(previewTask.id)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center"
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center text-sm sm:text-base"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download Result
                 </button>
                 <button
                   onClick={() => setPreviewTask(null)}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
                 >
                   Close
                 </button>
