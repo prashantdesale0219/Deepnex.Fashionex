@@ -4,28 +4,28 @@ export const homeSlider = [
         title: "Create stunning fashion photos with AI generated models",
         description: "FashionX is perfect for fashion brands that value quality, speed, and flexibility. Bring your products to life at a fraction of the cost.",
         image: "/assets/images/banner1.png",
-        mobImage: "/assets/images/heroSliderMob1.webp",
+        mobImage: "/assets/images/heroSliderMob1.png",
     },
     {
         id: 2,
         title: "Create stunning fashion photos with AI generated models",
         description: "FashionX is perfect for fashion brands that value quality, speed, and flexibility. Bring your products to life at a fraction of the cost.",
         image: "/assets/images/banner2.png",
-        mobImage: "/assets/images/heroSliderMob2.webp",
+        mobImage: "/assets/images/heroSliderMob2.png",
     },
     {
         id: 3,
         title: "Create stunning fashion photos with AI generated models",
         description: "FashionX is perfect for fashion brands that value quality, speed, and flexibility. Bring your products to life at a fraction of the cost.",
         image: "/assets/images/banner3.png",
-        mobImage: "/assets/images/heroSliderMob3.webp",
+        mobImage: "/assets/images/heroSliderMob3.png",
     },
     {
         id: 4,
         title: "Create stunning fashion photos with AI generated models",
         description: "FashionX is perfect for fashion brands that value quality, speed, and flexibility. Bring your products to life at a fraction of the cost.",
         image: "/assets/images/banner4.png",
-        mobImage: "/assets/images/heroSliderMob4.webp",
+        mobImage: "/assets/images/heroSliderMob4.png",
     },
 ]
 
