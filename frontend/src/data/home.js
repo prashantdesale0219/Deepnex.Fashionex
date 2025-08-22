@@ -79,28 +79,28 @@ export const gridsData =[    {
         id: 1,
         title: "Skip the shoots",
         description: "Generate stunning, professional photos & launch collections in no time. No studios, no crews - cut costs by 90% without sacrificing quality.",
-        image: "/assets/images/grid1.webp",
+        image: "/assets/images/grid1.png",
         layout: "image-right" // Image on right, text on left
     },
     {
         id: 2,
         title: "Turn static photos into fashion videos",
         description: "Bring your fashion to life with AI generated video. Show how your products move, fit, and feel - so customers can buy with confidence.",
-        image: "/assets/images/grid2.webm",
+        image: "/assets/images/grid2.png",
         layout: "image-left" // Image on left, text on right (alternating)
     },
     {
         id: 3,
         title: "More models, bigger reach",
         description: "Feature various looks and styles without hiring dozens of models. Get access to an exclusive and diverse AI model portfolio.",
-        image: "/assets/images/grid3.webp",
+        image: "/assets/images/grid3.png",
         layout: "image-right" // Image on right, text on left (alternating)
     },
     {
         id: 4,
         title: "Full image rights included",
         description: "Use your photos anywhere, anytime. No fees, no headaches - just freedom.",
-        image: "/assets/images/grid4.webp",
+        image: "/assets/images/grid4.png",
         layout: "image-left" // Image on left, text on right (alternating)
     }
 ]
