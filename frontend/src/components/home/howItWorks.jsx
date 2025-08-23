@@ -30,7 +30,7 @@ const HowItWorks = () => {
         {/* Section Header */}
         <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 tracking-tight">
-            How <span className="text-vanilla italic">FashionX</span> works
+            How <span className="text-coffee italic">FashionX</span> works
           </h2>
           <p className="text-gray-600 max-w-3xl mx-auto text-sm sm:text-base md:text-lg px-2">
             No creative skills required - just a few clicks and you've got realistic stunning photos.

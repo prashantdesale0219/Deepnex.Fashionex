@@ -7,7 +7,7 @@ import { User, LogOut, ChevronDown } from 'lucide-react';
 import LoginModal from './login';
 import { getAuthToken, getUserData, clearAuthCookies } from '../../lib/cookieUtils';
 
-const LoginButton = () => {
+const   LoginButton = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -49,7 +49,7 @@ const LoginButton = () => {
       <div className="relative">
         <button
           onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center space-x-2 text-coffee px-4 py-2 rounded-full transition-colors hover:bg-gray-100"
+          className="flex items-center space-x-2 text-white px-4 py-2 rounded-full transition-colors "
         >
           <User className="w-4 h-4" />
           <span>{user.firstName}</span>
@@ -89,7 +89,7 @@ const LoginButton = () => {
     <>
       <button
         onClick={openModal}
-        className="text-coffee px-6 py-2 rounded-full transition-colors hover:bg-gray-100"
+        className="text-white px-6 py-2 rounded-full transition-colors"
       >
         Sign In
       </button>

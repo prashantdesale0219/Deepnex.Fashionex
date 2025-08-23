@@ -61,7 +61,7 @@ const Stats = () => {
             <div key={stat.id} className="flex flex-col items-center">
               <div className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-1 sm:mb-2 text-vanilla">{stat.value}</div>
 
-              <div className="text-xs sm:text-sm md:text-base text-almond">{stat.title}</div>
+              <div className="text-xs sm:text-sm md:text-base text-white">{stat.title}</div>
             </div>
           ))}
         </div>

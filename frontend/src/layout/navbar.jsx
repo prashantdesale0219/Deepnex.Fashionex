@@ -166,7 +166,7 @@ const Navbar = () => {
           {!isLoggedIn && (
             <Link 
               href="/try-now" 
-              className={`${isScrolled ? 'bg-coffee text-white' : 'bg-white text-coffee'}  px-4 py-2 rounded-md hover:bg-almond transition-colors duration-300`}
+              className={`${isScrolled ? 'bg-coffee text-white' : 'bg-white text-coffee'}  px-4 py-2 rounded-md transition-colors duration-300`}
             >
               Try Now
             </Link>
