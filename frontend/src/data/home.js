@@ -77,29 +77,29 @@ export const statsData = [
 
 export const gridsData =[    {
         id: 1,
-        title: "Skip the shoots",
-        description: "Generate stunning, professional photos & launch collections in no time. No studios, no crews - cut costs by 90% without sacrificing quality.",
+        title: "Stop Paying for Shoots. Start Selling Faster.",
+        description: "Forget endless photoshoots, heavy budgets, and waiting on crews. Fashion X lets you create jaw-dropping product images instantly—cutting costs by 90% while keeping the same runway-level quality.",
         image: "/assets/images/grid1.png",
         layout: "image-right" // Image on right, text on left
     },
     {
         id: 2,
-        title: "Turn static photos into fashion videos",
-        description: "Bring your fashion to life with AI generated video. Show how your products move, fit, and feel - so customers can buy with confidence.",
+        title: "From Static Photos to Motion.",
+        description: "Why stop at static shots? Fashion X transforms your product images into dynamic AI-powered videos. Show how your designs move, fit, and flow—so customers don’t just see them, they trust them.",
         image: "/assets/images/grid2.png",
         layout: "image-left" // Image on left, text on right (alternating)
     },
     {
         id: 3,
-        title: "More models, bigger reach",
-        description: "Feature various looks and styles without hiring dozens of models. Get access to an exclusive and diverse AI model portfolio.",
+        title: "One dress. A thousand ways.",
+        description: "Why limit your collection to one model when you can show it on many? With Fashion X, get access to a full range of AI models and unlock endless styling possibilities—without endless photoshoots.",
         image: "/assets/images/grid3.png",
         layout: "image-right" // Image on right, text on left (alternating)
     },
     {
         id: 4,
-        title: "Full image rights included",
-        description: "Use your photos anywhere, anytime. No fees, no headaches - just freedom.",
+        title: "No strings attached.",
+        description: "Tired of hidden fees and usage limits? With Fashion X, you own everything you create. Post it, print it, sell with it—your visuals, your rules.",
         image: "/assets/images/grid4.png",
         layout: "image-left" // Image on left, text on right (alternating)
     }
@@ -108,38 +108,32 @@ export const gridsData =[    {
 export const aiSolutionsData = [
     {
         id: 1,
-        title: "Ever-growing model portfolio",
-        description: "Our unique selection of AI generated models for fashion includes diverse body types, ethnicities, and ages.",
+        title: "Diversity that reflects your audience.",
+        description: "Fashion X offers an ever-expanding portfolio of AI models—covering different body types, ethnicities, and ages. Showcase your products on a wide variety of looks that resonate with real customers.",
         image: "/assets/images/ai1.webp"
     },
     {
         id: 2,
-        title: "Flat-lay to on-model",
-        description: "Turn your packshot images into stunning on-model photos. No photoshoot required.",
+        title: "From flat-lay to runway—instantly.",
+        description: "Transform your packshot images into stunning on-model photos. No models. No studios. No photoshoots. Just upload and get professional results in seconds.",
         image: "/assets/images/ai2.webp"
     },
     {
-        id: 3,
-        title: "Swap backgrounds",
-        description: "Enhance basic photos or create stunning lifestyle images with just one click.",
-        image: "/assets/images/ai3.webp"
-    },
-    {
         id: 4,
-        title: "Enhance cropped photos",
-        description: "Our solution easily integrates AI fashion models into your cropped images.",
+        title: "No reshoots needed.",
+        description: "Missing parts of your product image? Our AI enhances cropped photos into flawless, ready-to-use visuals in seconds.",
         image: "/assets/images/ai4.webp"
     },
     {
         id: 5,
-        title: "Perfect your photos",
-        description: "Get flawless photos with Botika's AI-powered touch-ups. Quick and simple for flawless results.",
+        title: "Turn ordinary into extraordinary.",
+        description: "Our AI-powered touch-ups make every product photo look brand-ready in seconds.",
         image: "/assets/images/ai5.webp"
     },
     {
         id: 6,
-        title: "Share everywhere",
-        description: "Easily connect and export content to your website, social media accounts, and more.",
+        title: "From studio to social.",
+        description: "Seamlessly export and connect your visuals everywhere your brand lives.",
         image: "/assets/images/ai6.avif"
     }
 ]
@@ -147,28 +141,28 @@ export const aiSolutionsData = [
 export const faqData = [
     {
         id: 1,
-        question: "Where do Botika AI fashion models come from?",
-        answer: "All our models are 100% AI-generated—no stock models, no real people, no photo references. Every detail is built from scratch by our tech, from the subtle features in each model's face to their skin texture and makeup style. Unique faces, made just for your brand."
+        question: "Where do Fashion X AI fashion models come from?",
+        answer: "All our models are 100% AI-generated — no stock photos, no real people, no recycled references. Every face, texture, and detail is crafted uniquely for your brand."
     },
     {
         id: 2,
         question: "What tech powers your AI models?",
-        answer: "Our proprietary AI technology combines advanced generative models with fashion-specific training to create hyper-realistic models. We use a combination of diffusion models and neural networks optimized specifically for clothing draping, texture rendering, and natural poses."
+        answer: "Fashion X runs on advanced generative AI, trained specifically for fashion visuals. This ensures high-resolution, lifelike results optimized for apparel and eCommerce."
     },
     {
         id: 3,
         question: "How do I get started?",
-        answer: "Getting started is simple! Sign up for an account, upload your product images, select your preferred AI model and customization options, and our system will generate your fashion photos within minutes. We offer various subscription plans to suit businesses of all sizes."
+        answer: "Simply sign up, upload your clothing images, and select your preferred model style. Our AI handles the rest — delivering polished photos in minutes."
     },
     {
         id: 4,
         question: "Can I customize clothing or models using my own prompts?",
-        answer: "Yes! Our platform allows for extensive customization. You can provide specific prompts for clothing styles, model characteristics, poses, and backgrounds. Our advanced AI understands natural language instructions, making it easy to achieve exactly the look you want."
+        answer: "Yes! You can personalize models, poses, backgrounds, and outfits with text prompts or presets, giving you total creative control."
     },
     {
         id: 5,
         question: "Can I use your service for jewelry, footwear, or cosmetics?",
-        answer: "Absolutely! While we specialize in fashion apparel, our AI models are fully capable of showcasing jewelry, accessories, footwear, and cosmetics. Our technology accurately renders fine details, reflections, and textures needed for these product categories."
+        answer: "Absolutely. While built for fashion, our AI also generates realistic visuals for jewelry, footwear, and beauty products."
     }
 ]
 
